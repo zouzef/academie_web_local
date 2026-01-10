@@ -1,0 +1,232 @@
+<div class="content-body">
+    <div class="container-fluid">
+        <div class="top-bar">
+            <div class="row gy-2 align-items-center">
+                <div class="col-12 col-md-4">
+                    <a href="/dashboard/show-attendance-sessions/12" class="btn btn-secondary btn-custom">
+                        <i class="fas fa-arrow-left me-2"></i> Return
+                    </a>
+                </div>
+                <div class="col-12 col-md-8">
+                    <div class="d-flex flex-wrap justify-content-end gap-2">
+                        <button class="btn btn-success" data-id="1642" id="download-attendance-pdf">
+                            <i class="fas fa-file-pdf me-1"></i> Download Attendance List
+                        </button>
+                        <button type="button" class="btn btn-primary showStatsButton" data-id="1642" data-bs-toggle="modal" data-bs-target="#modalStatAttendance">
+                            <i class="fas fa-chart-bar me-1"></i> Statistique
+                        </button>
+                        <button type="button" class="btn btn-info mark-teacher-attendance" data-id="1642">
+                            <i class="fas fa-user-check me-1"></i> Mark Teacher Attendance
+                        </button>
+                            <a class="btn btn-warning" data-id="1642" id="reset-attendance">
+                                <i class="fas fa-undo-alt me-1"></i> Reset Attendances
+                            </a>
+                            <a href="/dashboard/show-attendance-unknown-student/1642" class="btn btn-danger" id="btn-unknown-student">
+                                <i class="fas fa-user-secret me-1"></i> Unknown Student
+                            </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row py-3">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header pb-0 border-0 flex-wrap">
+                            <div class="col-xl-9">
+                                <div class="mb-3">
+                                    <h2 class="heading mb-0">Group Attendances: GROUP TEST 33</h2><br>
+                                    <p class="text-muted">
+                                        Date: Tuesday 30 December 2025<br>
+                                        Start Time: 10:09:30<br>
+                                        End Time: 10:15:00<br>
+                                        Type : Presence
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 d-flex align-items-center justify-content-end">
+                                <button class="btn btn-primary" id="add-new-user">Add New User</button>
+                            </div>
+                        </div>
+                        <div class="card-body pb-0">
+                            <div class="table-responsive basic-tbl">
+                                <div id="example-attendance_wrapper" class="dataTables_wrapper no-footer"><table id="example-attendance" class="display dataTable no-footer" style="min-width: 845px; width: 887px;" aria-describedby="example-attendance_info">
+                                    <thead>
+                                        <tr><th class="sorting sorting_asc" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 37.6px;" aria-sort="ascending" aria-label=": activate to sort column descending"></th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 235.6px;" aria-label="Student: activate to sort column ascending">Student</th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 141.6px;" aria-label="Attendance Status: activate to sort column ascending">Attendance Status</th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 46.6px;" aria-label="Note: activate to sort column ascending">Note</th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 217.6px;" aria-label="Action: activate to sort column ascending">Action</th></tr>
+                                    </thead>
+                                    <tbody>
+
+
+
+
+
+
+                                                                            <tr class="selected odd">
+                                                <td class="sorting_1">
+                                                    <div class="icon-box icon-box-sm bg-light">
+                                                        <a class="delete-attendance" data-id="9050">
+                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>Mohamed Seddik Ben Hamouda</td>
+                                                <td>
+                                                                                                            <span class="badge badge-danger">
+                                                            Absent
+                                                        </span>
+                                                                                                    </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9050" data-status="">
+                                                        Mark as Present
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-info add-note" data-id="9050" data-note="">
+                                                        Add Note
+                                                    </button>
+                                                </td>
+                                            </tr><tr class="selected even">
+                                                <td class="sorting_1">
+                                                    <div class="icon-box icon-box-sm bg-light">
+                                                        <a class="delete-attendance" data-id="9051">
+                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>student khalil tester</td>
+                                                <td>
+                                                                                                            <span class="badge badge-danger">
+                                                            Absent
+                                                        </span>
+                                                                                                    </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9051" data-status="">
+                                                        Mark as Present
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-info add-note" data-id="9051" data-note="">
+                                                        Add Note
+                                                    </button>
+                                                </td>
+                                            </tr><tr class="selected odd">
+                                                <td class="sorting_1">
+                                                    <div class="icon-box icon-box-sm bg-light">
+                                                        <a class="delete-attendance" data-id="9052">
+                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>Test User</td>
+                                                <td>
+                                                                                                            <span class="badge badge-danger">
+                                                            Absent
+                                                        </span>
+                                                                                                    </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9052" data-status="">
+                                                        Mark as Present
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-info add-note" data-id="9052" data-note="">
+                                                        Add Note
+                                                    </button>
+                                                </td>
+                                            </tr><tr class="selected even">
+                                                <td class="sorting_1">
+                                                    <div class="icon-box icon-box-sm bg-light">
+                                                        <a class="delete-attendance" data-id="9053">
+                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>student2</td>
+                                                <td>
+                                                                                                            <span class="badge badge-danger">
+                                                            Absent
+                                                        </span>
+                                                                                                    </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9053" data-status="">
+                                                        Mark as Present
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-info add-note" data-id="9053" data-note="">
+                                                        Add Note
+                                                    </button>
+                                                </td>
+                                            </tr><tr class="selected odd">
+                                                <td class="sorting_1">
+                                                    <div class="icon-box icon-box-sm bg-light">
+                                                        <a class="delete-attendance" data-id="9054">
+                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>kasmi youssef</td>
+                                                <td>
+                                                                                                            <span class="badge badge-danger">
+                                                            Absent
+                                                        </span>
+                                                                                                    </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9054" data-status="">
+                                                        Mark as Present
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-info add-note" data-id="9054" data-note="">
+                                                        Add Note
+                                                    </button>
+                                                </td>
+                                            </tr><tr class="selected even">
+                                                <td class="sorting_1">
+                                                    <div class="icon-box icon-box-sm bg-light">
+                                                        <a class="delete-attendance" data-id="9055">
+                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
+                                                        </a>
+                                                    </div>
+                                                </td>
+                                                <td>Med Firas Kasmi</td>
+                                                <td>
+                                                                                                            <span class="badge badge-danger">
+                                                            Absent
+                                                        </span>
+                                                                                                    </td>
+                                                <td>
+                                                    <p>N/A</p>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9055" data-status="">
+                                                        Mark as Present
+                                                    </button>
+
+                                                    <button type="button" class="btn btn-info add-note" data-id="9055" data-note="">
+                                                        Add Note
+                                                    </button>
+                                                </td>
+                                            </tr></tbody>
+                                </table><div class="dataTables_info" id="example-attendance_info" role="status" aria-live="polite">Showing 1 to 6 of 6 entries</div><div class="dataTables_paginate paging_simple_numbers" id="example-attendance_paginate"><a class="paginate_button previous disabled" aria-controls="example-attendance" data-dt-idx="0" tabindex="-1" id="example-attendance_previous"><i class="fa-solid fa-angle-left"></i></a><span><a class="paginate_button current" aria-controls="example-attendance" data-dt-idx="1" tabindex="0">1</a></span><a class="paginate_button next disabled" aria-controls="example-attendance" data-dt-idx="2" tabindex="-1" id="example-attendance_next"><i class="fa-solid fa-angle-right"></i></a></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+    </div>
+</div>
