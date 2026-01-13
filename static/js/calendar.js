@@ -5,9 +5,14 @@ document.addEventListener('DOMContentLoaded', function() {
     var containerEl = document.getElementById('external-events');
     var calendarEl = document.getElementById('calendar');
 
-    // initialize the external events
-    // -----------------------------------------------------------------
+    // Get session_id and account_id
+    var sessionId = 12;
+    var accountId = 3;
 
+    console.log('Session ID:', sessionId);
+    console.log('Account ID:', accountId);
+
+    // Initialize the external events
     new Draggable(containerEl, {
       itemSelector: '.external-event',
       eventData: function(eventEl) {
@@ -17,80 +22,94 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
 
-    // initialize the calendar
-    // -----------------------------------------------------------------
+    // Function to adjust timezone - SUBTRACT 1 hour
+    function adjustTimezone(dateString) {
+        var date = new Date(dateString);
+        date.setHours(date.getHours() - 1);
+        return date;
+    }
 
+    // Initialize the calendar
     var calendar = new Calendar(calendarEl, {
       headerToolbar: {
         left: 'prev,next today',
         center: 'title',
         right: 'dayGridMonth,timeGridWeek,timeGridDay'
       },
-      initialDate: '2020-09-12',
-      navLinks: true, // can click day/week names to navigate views
+      initialDate: new Date(),
+      navLinks: true,
       editable: true,
-      droppable: true, // this allows things to be dropped onto the calendar
+      droppable: true,
       dayMaxEvents: true,
-	  events: [
-        {
-          title: 'All Day Event',
-          start: '2020-09-01'
-        },
-        {
-          title: 'Long Event',
-          start: '2020-09-07',
-          end: '2020-09-10'
-        },
-        {
-          groupId: 999,
-          title: 'Repeating Event',
-          start: '2020-09-09T16:00:00'
-        },
-        {
-          groupId: 999,
-          title: 'Repeating Event',
-          start: '2020-09-16T16:00:00'
-        },
-        {
-          title: 'Conference',
-          start: '2020-09-11',
-          end: '2020-09-13'
-        },
-        {
-          title: 'Meeting',
-          start: '2020-09-12T10:30:00',
-          end: '2020-09-12T12:30:00'
-        },
-        {
-          title: 'Lunch',
-          start: '2020-09-12T12:00:00'
-        },
-        {
-          title: 'Meeting',
-          start: '2020-09-12T14:30:00'
-        },
-        {
-          title: 'Happy Hour',
-          start: '2020-09-12T17:30:00'
-        },
-        {
-          title: 'Dinner',
-          start: '2020-09-12T20:00:00'
-        },
-        {
-          title: 'Birthday Party',
-          start: '2020-09-13T07:00:00'
-        },
-        {
-          title: 'Click for Google',
-          url: 'http://google.com/',
-          start: '2020-09-28'
-        }
-      ]
+
+      events: function(info, successCallback, failureCallback) {
+        var url = `/dashboard/get_calander_per_session/${accountId}/${sessionId}`;
+        console.log('Fetching from URL:', url);
+
+        fetch(url)
+          .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response ok:', response.ok);
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('Data received:', data);
+
+            if (data.success && data.data) {
+              var events = data.data.map(function(item) {
+                var startDate = adjustTimezone(item.start_time);
+                var endDate = adjustTimezone(item.end_time);
+
+                console.log('Original start:', item.start_time);
+                console.log('Adjusted start:', startDate);
+
+                return {
+                  id: item.id,
+                  title: item.title,
+                  start: startDate,
+                  end: endDate,
+                  backgroundColor: item.color,
+                  borderColor: item.color,
+                  extendedProps: {
+                    description: item.description,
+                    teacher_id: item.teacher_id,
+                    subject_id: item.subject_id,
+                    room_id: item.room_id,
+                    group_session_id: item.group_session_id,
+                    ref: item.ref
+                  }
+                };
+              });
+              console.log('Transformed events:', events);
+              successCallback(events);
+            } else {
+              console.error('No data or success flag false:', data);
+              successCallback([]);
+            }
+          })
+          .catch(error => {
+            console.error('Fetch error:', error);
+            console.error('Error message:', error.message);
+            failureCallback(error);
+          });
+      },
+
+      // Redirect to attendance page when event is clicked
+      eventClick: function(info) {
+        // Get the event ID
+        var eventId = info.event.id;
+
+        // Redirect to the attendance page
+        window.location.href = '/dashboard/show-attendance-presence/' + eventId;
+
+        // Prevent default action
+        info.jsEvent.preventDefault();
+      }
     });
 
     calendar.render();
 });
-
-
-

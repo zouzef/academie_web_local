@@ -7,12 +7,20 @@ var Akademi  = function(){
 
 
    var handlePreloader = function(){
-	   setTimeout(function() {
-		   jQuery('#preloader').remove();
-		   $('#main-wrapper').addClass('show');
-	   },1000);	
-	   
-   }
+    // Wait for the page to fully load
+    window.addEventListener('load', function() {
+        // Page is loaded, now hide preloader
+        jQuery('#preloader').fadeOut(500, function() {
+            jQuery(this).remove();
+        });
+        $('#main-wrapper').addClass('show');
+    });
+}
+
+
+
+// Call it immediately
+handlePreloader();
 
    var handleMetisMenu = function() {
 	   if(jQuery('#menu').length > 0 ){
@@ -33,13 +41,12 @@ var Akademi  = function(){
    }
 
    var handleNavigation = function() {
-	   $(".nav-control").on('click', function() {
-
-		   $('#main-wrapper').toggleClass("menu-toggle");
-
-		   $(".hamburger").toggleClass("is-active");
-	   });
-   }
+    $(".hamburger").on('click', function() {
+        console.log("Hamburger clicked!"); // TEST
+        $('#main-wrapper').toggleClass("menu-toggle");
+        $(this).toggleClass("is-active");
+    });
+}
  
    var handleCurrentActive = function() {
 	   for (var nk = window.location,
