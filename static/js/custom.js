@@ -740,3 +740,358 @@ jQuery(window).on('resize',function () {
    }, 1000);
 });
 /*  Window Resize END */
+
+
+
+/*====================== js pour page show attendance ======================*/
+// Function to update attendance status
+function update_attendance(attendanceId, button) {
+    // Read the current status from the button's data attribute
+    const currentStatus = button.getAttribute('data-status');
+
+    // Convert string to boolean for comparison
+    const isCurrentlyPresent = currentStatus === 'True' || currentStatus === 'true' || currentStatus === true;
+
+    // Toggle the status (Present becomes 0 for Absent, Absent becomes 1 for Present)
+    const newStatus = isCurrentlyPresent ? 0 : 1;
+
+    console.log('Current Status:', currentStatus, 'Is Present:', isCurrentlyPresent, 'New Status:', newStatus);
+
+    fetch(`/api/change-status/${newStatus}/${attendanceId}`)
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Find the row for this attendance
+            const row = button.closest('tr');
+
+            // Update the badge in the "Attendance Status" column
+            const statusCell = row.querySelector('td:nth-child(3)');
+
+            if (newStatus === 1) {
+                // Mark as Present
+                statusCell.innerHTML = '<span class="badge badge-success">Present</span>';
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-warning');
+                button.textContent = 'Mark as Absent';
+                button.setAttribute('data-status', 'True');
+            } else {
+                // Mark as Absent
+                statusCell.innerHTML = '<span class="badge badge-danger">Absent</span>';
+                button.classList.remove('btn-warning');
+                button.classList.add('btn-primary');
+                button.textContent = 'Mark as Present';
+                button.setAttribute('data-status', 'False');
+            }
+
+            console.log('Attendance updated successfully');
+        } else {
+            alert('Failed to update attendance: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update attendance');
+    });
+}
+
+// Add event listener to all toggle-attendance buttons
+document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.classList.contains('toggle-attendance')) {
+            const attendanceId = e.target.getAttribute('data-id');
+            update_attendance(attendanceId, e.target);
+        }
+    });
+});
+
+
+
+// Function 2: Add or edit note
+
+
+// Function to save note
+function change_status() {
+    const attendanceId = document.getElementById('attendanceId').value;
+    const noteText = document.getElementById('noteText').value;
+
+    fetch(`/api/change-note/${attendanceId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            note: noteText
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const button = document.querySelector(`[data-id="${attendanceId}"].add-note`);
+            const row = button.closest('tr');
+            const noteCell = row.querySelector('td:nth-child(4) p');
+
+            noteCell.textContent = noteText || 'N/A';
+            button.setAttribute('data-note', noteText);
+            button.textContent = noteText ? 'Edit Note' : 'Add Note';
+
+            // Close the modal
+            const modalElement = document.getElementById('attendanceNoteModal');
+            const modal = bootstrap.Modal.getInstance(modalElement);
+
+            if (modal) {
+                modal.hide();
+            }
+
+            // 🔥 FORCE REMOVE BACKDROP & SCROLL LOCK
+            document.body.classList.remove('modal-open');
+            document.body.style.paddingRight = '';
+            document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+
+        } else {
+            alert('Failed to update note: ' + data.message);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Failed to update note');
+    });
+}
+
+// Save note button click handler
+document.getElementById('saveNoteButton').addEventListener('click', function(e) {
+    e.preventDefault();
+    change_status();
+});
+
+
+
+
+/* Function to reset attendance */
+function reset_attendance(calendar_id) {
+    if (!confirm("Are you sure you want to reset all attendances?")) {
+        return;
+    }
+    fetch(`/api/reset-attendance/${calendar_id}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(data.message);
+        } else {
+            alert("Unknown response from server");
+        }
+
+        // OPTIONAL: reload page or update table
+        location.reload();
+    })
+    .catch(error => {
+        console.error("Reset attendance error:", error);
+        alert("An error occurred while resetting attendance.");
+    });
+}
+
+
+
+
+let attendanceChart = null; // global variable to hold chart instance
+/* Get statistic funtion */
+function get_statistic(calendar_id) {
+    fetch(`/api/get-statistic/${calendar_id}`, {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.data) {
+            const stats = data.data; // { present_count, absent_count, total_count }
+
+            const ctx = document.getElementById('attendanceStatsChart').getContext('2d');
+
+            // Destroy old chart if exists
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+
+            // Create chart with animation
+            attendanceChart = new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Present', 'Absent'],
+                    datasets: [{
+                        data: [stats.present_count, stats.absent_count],
+                        backgroundColor: ['#a0e7e5', '#ffb3b3'],
+                        borderColor: ['#5adbb5', '#ff6b6b'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    animation: {
+                        animateRotate: true, // rotate pie slices
+                        animateScale: true   // scale in from center
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    let value = context.raw || 0;
+                                    return `${label}: ${value}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Show modal
+            const modalElement = document.getElementById('modalStatAttendance');
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+        } else {
+            alert(data.Message || "Unknown response from server");
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching attendance statistics:", error);
+        alert("An error occurred while fetching attendance statistics.");
+    });
+}
+
+
+
+/* Function to download pdf */
+
+function download_attendance_pdf() {
+    const button = document.getElementById('download-attendance-pdf');
+    const calendarId = button.getAttribute('data-id');
+
+    // Get the table
+    const table = document.querySelector('table#example-attendance');
+    if (!table) {
+        alert('Table not found');
+        return;
+    }
+
+    // Get all rows from table
+    const rows = table.querySelectorAll('tbody tr');
+    const records = [];
+
+    rows.forEach((row, index) => {
+        const cells = row.querySelectorAll('td');
+        if (cells.length >= 4) {
+            records.push({
+                number: (index + 1).toString(),
+                student_name: cells[1].textContent.trim(),
+                status: cells[2].textContent.trim(),
+                note: cells[3].textContent.trim()
+            });
+        }
+    });
+
+    // Get session info from the heading and card elements
+    const heading = document.querySelector('h2.heading');
+    const heading_text = heading ? heading.textContent.trim() : '';
+    const group = heading_text.replace('Group Attendances:', '').trim();
+
+    const pText = document.querySelector('.card-header .text-muted');
+    const lines = pText ? pText.innerHTML.split('<br>') : [];
+
+    let date = 'N/A';
+    let startTime = 'N/A';
+    let endTime = 'N/A';
+
+    lines.forEach(line => {
+        if (line.includes('Date:')) {
+            date = line.replace('Date:', '').trim();
+        }
+        if (line.includes('Start Time:')) {
+            startTime = line.replace('Start Time:', '').trim();
+        }
+        if (line.includes('End Time:')) {
+            endTime = line.replace('End Time:', '').trim();
+        }
+    });
+
+    const sessionInfo = {
+        group: group || 'N/A',
+        date: date,
+        startTime: startTime,
+        endTime: endTime
+    };
+
+    // Create HTML for PDF
+    let html = `
+        <h2 style="text-align: center;">Attendance List</h2>
+
+        <div style="margin: 20px 0; line-height: 1.8;">
+            <p><b>Group Attendance:</b> ${sessionInfo.group}</p>
+            <p><b>Date:</b> ${sessionInfo.date}</p>
+            <p><b>Start Time:</b> ${sessionInfo.startTime}</p>
+            <p><b>End Time:</b> ${sessionInfo.endTime}</p>
+        </div>
+
+        <table border="1" cellpadding="10" style="width:100%;margin-top: 20px;">
+            <thead>
+                <tr style="background-color: #1EBA62; color: white; height:40px;">
+                    <th style="padding-left:5px; border-right:1px solid grey;">#</th>
+                    <th style="padding-left:5px;border-right:1px solid grey;">Full Name</th>
+                    <th style="padding-left:5px;border-right:1px solid grey;">Attendance</th>
+                    <th style="padding-left:5px;border-right:1px solid grey;">Note</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    records.forEach((record) => {
+        html += `
+            <tr>
+                <td style="padding:10px; border:1px solid grey;">${record.number}</td>
+                <td style="padding:5px; border:1px solid grey;">${record.student_name}</td>
+                <td style="padding:5px; border:1px solid grey;">${record.status}</td>
+                <td style="padding:5px; border:1px solid grey;">${record.note}</td>
+            </tr>
+        `;
+    });
+
+    html += `
+            </tbody>
+        </table>
+    `;
+
+    // Use html2pdf to generate PDF
+    const element = document.createElement('div');
+    element.innerHTML = html;
+
+    const opt = {
+        margin: 10,
+        filename: `attendance_${calendarId}_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
+    };
+
+    if (typeof html2pdf === 'undefined') {
+        alert('PDF library not loaded');
+        return;
+    }
+
+    html2pdf().set(opt).from(element).save();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const downloadButton = document.getElementById('download-attendance-pdf');
+    if (downloadButton) {
+        downloadButton.addEventListener('click', function(e) {
+            e.preventDefault();
+            download_attendance_pdf();
+        });
+    }
+});

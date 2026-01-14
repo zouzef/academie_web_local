@@ -12,13 +12,15 @@
                         <button class="btn btn-success" data-id="{{ id_calander }}" id="download-attendance-pdf">
                             <i class="fas fa-file-pdf me-1"></i> Download Attendance List
                         </button>
-                        <button type="button" class="btn btn-primary showStatsButton" data-id="{{ id_calander }}" data-bs-toggle="modal" data-bs-target="#modalStatAttendance">
+                        <button type="button" class="btn btn-primary showStatsButton" data-id="{{ id_calander }}" onclick="get_statistic({{id_calander}})">
                             <i class="fas fa-chart-bar me-1"></i> Statistique
                         </button>
+
                         <button type="button" class="btn btn-info mark-teacher-attendance" data-id="{{ id_calander }}">
                             <i class="fas fa-user-check me-1"></i> Mark Teacher Attendance
                         </button>
-                        <a class="btn btn-warning" data-id="{{ id_calander }}" id="reset-attendance">
+
+                        <a class="btn btn-warning" data-id="{{ id_calander }}" id="reset-attendance" onclick="reset_attendance({{id_calander}})">
                             <i class="fas fa-undo-alt me-1"></i> Reset Attendances
                         </a>
                         <a href="/dashboard/show-attendance-unknown-student/{{ id_calander }}" class="btn btn-danger" id="btn-unknown-student">
@@ -66,7 +68,6 @@
                                             <style>
                                                 .sorting {
                                                     background-color: #E6EBEE !important;
-
                                                 }
                                             </style>
                                         </tr>
@@ -95,13 +96,15 @@
                                                 </td>
                                                 <td>
                                                     <button type="button" class="btn btn-{% if attend.isPresent %}warning{% else %}primary{% endif %} toggle-attendance"
-                                                            data-id="{{ attend.id }}"
-                                                            data-status="{{ attend.isPresent }}">
+                                                        data-id="{{ attend.id }}"
+                                                        data-status="{{ attend.isPresent }}">
                                                         {% if attend.isPresent %}Mark as Absent{% else %}Mark as Present{% endif %}
                                                     </button>
                                                     <button type="button" class="btn btn-info add-note"
                                                             data-id="{{ attend.id }}"
-                                                            data-note="{{ attend.note or '' }}">
+                                                            data-note="{{ attend.note or '' }}"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#attendanceNoteModal">
                                                         {% if attend.note %}Edit Note{% else %}Add Note{% endif %}
                                                     </button>
                                                 </td>
@@ -182,6 +185,56 @@
     </div>
 </div>
 
+
+<!-- Attendance Note Modal -->
+<div class="modal fade" id="attendanceNoteModal" tabindex="-1" aria-labelledby="attendanceNoteLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="attendanceNoteLabel">Add Note for Attendance</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="attendanceNoteForm">
+                    <div class="mb-3">
+                        <label for="noteText" class="form-label">Note</label>
+                        <textarea class="form-control" id="noteText" rows="3" required></textarea>
+                        <input type="hidden" id="attendanceId" name="attendanceId">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="saveNoteButton">Save Note</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modalStatAttendance" tabindex="-1" aria-labelledby="modalStatLabel" style="display: none;" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalStatLabel">Statistique Attendance</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <canvas id="attendanceStatsChart" width="400" height="400" style="box-sizing: border-box;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
 <script>
 // Fix the select when modal opens - keep Bootstrap styling
 document.getElementById('addUserModal').addEventListener('shown.bs.modal', function() {
@@ -203,9 +256,4 @@ document.getElementById('addUserModal').addEventListener('shown.bs.modal', funct
 
     console.log('Select fixed - keeping Bootstrap styles');
 });
-
-
-
-funcition change_status(){}
-
 </script>

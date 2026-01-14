@@ -306,8 +306,138 @@ def show_attendance_presence(id_calander):
 						   page='show_attendance_presence')
 
 
-# @dashboard_bp.route()
-# def update_attendance(status,id_attendance):
+
+# Change Status endpoint
+@dashboard_bp.route("/api/change-status/<int:status>/<int:attendance_id>")
+def update_attendance(status, attendance_id):
+	url = f"https://172.28.20.5:5004/scl/update-attendance-student/{attendance_id}"
+	try:
+		is_present = status == 1
+		payload = {
+			"status": is_present
+		}
+		print(payload)
+		response = requests.post(url,json=payload,headers={'Content-Type': 'application/json'},verify=False)
+		if response.status_code == 200:
+			print("response==200")
+			return jsonify({
+				"success": True,
+				"message": "Attendance updated successfully",
+				"data": response.json()
+			}), 200
+		else:
+			return jsonify({
+				"success": False,
+				"message": "Failed to update attendance",
+				"error": response.json() if response.text else "Unknown error",
+				"status_code": response.status_code
+			}), response.status_code
+
+	except requests.exceptions.ConnectionError as e:
+		print(f"Connection Error: {e}")
+		return jsonify({
+			"success": False,
+			"message": "Could not connect to the attendance service"
+		}), 500
+	except requests.exceptions.Timeout as e:
+		print(f"Timeout Error: {e}")
+		return jsonify({
+			"success": False,
+			"message": "Request timed out"
+		}), 500
+	except Exception as e:
+		print(f"Error {e} coming from update_attendance!!")
+		return jsonify({
+			"success": False,
+			"message": "An unexpected error occurred",
+			"error": str(e)
+		}), 500
+
+# Change Note EndPoint
+@dashboard_bp.route("/api/change-note/<int:attendance_id>", methods=['POST'])
+def update_note(attendance_id):
+	url = f"https://172.28.20.5:5004/scl/update-attendance-note/{attendance_id}"
+
+	try:
+		# Get the note from the request body
+		if request.is_json:
+			data = request.get_json()
+			note = data.get('note', '')
+		else:
+			note = request.form.get('note', '')
+		payload = {
+			"note": note
+		}
+		response = requests.post(url,json=payload,verify=False)
+		if response.status_code == 200:
+			return jsonify({
+				"success": True,
+				"message": "Note updated successfully",
+				"data": response.json()
+			}), 200
+		else:
+			return jsonify({
+				"success": False,
+				"message": "Failed to update note",
+				"error": response.json() if response.text else "Unknown error",
+				"status_code": response.status_code
+			}), response.status_code
+
+	except requests.exceptions.ConnectionError as e:
+		print(f"Connection Error: {e}")
+		return jsonify({
+			"success": False,
+			"message": "Could not connect to the attendance service"
+		}), 500
+
+	except requests.exceptions.Timeout as e:
+		print(f"Timeout Error: {e}")
+		return jsonify({
+			"success": False,
+			"message": "Request timed out"
+		}), 500
+
+	except Exception as e:
+		print(f"Error {e} coming from update_note!!")
+		return jsonify({
+			"success": False,
+			"message": "An unexpected error occurred",
+			"error": str(e)
+		}), 500
+
+
+# api to reset attendance
+@dashboard_bp.route("/api/reset-attendance/<int:calander_id>",methods=["post"])
+def reset_attendance(calander_id):
+	url = f"https://172.28.20.5:5004/scl/reset_attendance/{calander_id}"
+	try:
+		response = requests.get(url,verify=False)
+		response.raise_for_status()
+		if(response.status_code == 200):
+			return jsonify({"Message": "Operation reset success! "}),200
+		else:
+			return jsonify({"Message":"Error coming from server"}),500
+	except Exception as e:
+		print("Error coming from reset_attendance")
+		return jsonify({"Message":f"Error {e}"}),500
+
+#api to get statistic
+
+@dashboard_bp.route("/api/get-statistic/<int:calander_id>",methods=["GET"])
+def get_calender_statistic(calander_id):
+	url =f"https://172.28.20.5:5004/scl/attendance-statistics/{calander_id}"
+	try:
+		response = requests.get(url,verify=False)
+		response.raise_for_status()
+		if response.status_code == 200:
+			data=response.json()
+			return jsonify({"Message": "succes","data":data}),200
+		else:
+			return jsonify({"Message":"Error coming from server"}),500
+
+	except Exception as e:
+		print(f"Error:{e} coming from get statistic")
+		return jsonify({"Message":"Error "}),500
 
 
 
