@@ -1,232 +1,211 @@
-<div class="content-body">
+<div class="content-body" style="cursor: default; user-select: none;">
     <div class="container-fluid">
         <div class="top-bar">
             <div class="row gy-2 align-items-center">
                 <div class="col-12 col-md-4">
-                    <a href="/dashboard/show-attendance-sessions/12" class="btn btn-secondary btn-custom">
+                    <a href="/dashboard/show-attendance-sessions/{{ calender_detail.session_id }}" class="btn btn-secondary btn-custom">
                         <i class="fas fa-arrow-left me-2"></i> Return
                     </a>
                 </div>
                 <div class="col-12 col-md-8">
                     <div class="d-flex flex-wrap justify-content-end gap-2">
-                        <button class="btn btn-success" data-id="1642" id="download-attendance-pdf">
+                        <button class="btn btn-success" data-id="{{ id_calander }}" id="download-attendance-pdf">
                             <i class="fas fa-file-pdf me-1"></i> Download Attendance List
                         </button>
-                        <button type="button" class="btn btn-primary showStatsButton" data-id="1642" data-bs-toggle="modal" data-bs-target="#modalStatAttendance">
+                        <button type="button" class="btn btn-primary showStatsButton" data-id="{{ id_calander }}" data-bs-toggle="modal" data-bs-target="#modalStatAttendance">
                             <i class="fas fa-chart-bar me-1"></i> Statistique
                         </button>
-                        <button type="button" class="btn btn-info mark-teacher-attendance" data-id="1642">
+                        <button type="button" class="btn btn-info mark-teacher-attendance" data-id="{{ id_calander }}">
                             <i class="fas fa-user-check me-1"></i> Mark Teacher Attendance
                         </button>
-                            <a class="btn btn-warning" data-id="1642" id="reset-attendance">
-                                <i class="fas fa-undo-alt me-1"></i> Reset Attendances
-                            </a>
-                            <a href="/dashboard/show-attendance-unknown-student/1642" class="btn btn-danger" id="btn-unknown-student">
-                                <i class="fas fa-user-secret me-1"></i> Unknown Student
-                            </a>
+                        <a class="btn btn-warning" data-id="{{ id_calander }}" id="reset-attendance">
+                            <i class="fas fa-undo-alt me-1"></i> Reset Attendances
+                        </a>
+                        <a href="/dashboard/show-attendance-unknown-student/{{ id_calander }}" class="btn btn-danger" id="btn-unknown-student">
+                            <i class="fas fa-user-secret me-1"></i> Unknown Student
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
-
-
         <div class="row py-3">
-                <div class="col-xl-12">
-                    <div class="card">
-                        <div class="card-header pb-0 border-0 flex-wrap">
-                            <div class="col-xl-9">
-                                <div class="mb-3">
-                                    <h2 class="heading mb-0">Group Attendances: GROUP TEST 33</h2><br>
-                                    <p class="text-muted">
-                                        Date: Tuesday 30 December 2025<br>
-                                        Start Time: 10:09:30<br>
-                                        End Time: 10:15:00<br>
-                                        Type : Presence
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 d-flex align-items-center justify-content-end">
-                                <button class="btn btn-primary" id="add-new-user">Add New User</button>
+            <div class="col-xl-12">
+                <div class="card">
+                    <div class="card-header pb-0 border-0 flex-wrap">
+                        <div class="col-xl-9">
+                            <div class="mb-3">
+                                <h2 class="heading mb-0">Group Attendances: {{ calender_detail.title }}</h2><br>
+                                <p class="text-muted">
+                                    Date: {{ calender_detail.start_time.strftime('%A %d %B %Y') if calender_detail.start_time else 'N/A' }}<br>
+                                    Start Time: {{ calender_detail.start_time.strftime('%H:%M:%S') if calender_detail.start_time else 'N/A' }}<br>
+                                    End Time: {{ calender_detail.end_time.strftime('%H:%M:%S') if calender_detail.end_time else 'N/A' }}<br>
+                                    Type: {% if calender_detail.type == 'O' %}Online{% elif calender_detail.type == 'P' %}In-Person{% else %}{{ calender_detail.type }}{% endif %}
+                                </p>
                             </div>
                         </div>
-                        <div class="card-body pb-0">
-                            <div class="table-responsive basic-tbl">
-                                <div id="example-attendance_wrapper" class="dataTables_wrapper no-footer"><table id="example-attendance" class="display dataTable no-footer" style="min-width: 845px; width: 887px;" aria-describedby="example-attendance_info">
-                                    <thead>
-                                        <tr><th class="sorting sorting_asc" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 37.6px;" aria-sort="ascending" aria-label=": activate to sort column descending"></th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 235.6px;" aria-label="Student: activate to sort column ascending">Student</th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 141.6px;" aria-label="Attendance Status: activate to sort column ascending">Attendance Status</th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 46.6px;" aria-label="Note: activate to sort column ascending">Note</th><th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 217.6px;" aria-label="Action: activate to sort column ascending">Action</th></tr>
+                        <div class="col-xl-3 d-flex align-items-center justify-content-end">
+                            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addUserModal" id="add-new-user">
+                                Add New User
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="card-body pb-0">
+                        <div class="table-responsive basic-tbl">
+                            <div id="example-attendance_wrapper" class="dataTables_wrapper no-footer">
+                                <table id="example-attendance" class="table table-striped table-hover dataTable no-footer" style="min-width: 845px;">
+
+                                    <thead style="background-color: #6c757d !important; color: white !important;">
+                                        <tr>
+                                            <th class="sorting sorting_asc" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 57.6px;" aria-sort="ascending" aria-label=": activate to sort column descending"></th>
+                                            <th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 307.6px;" aria-label="Student: activate to sort column ascending">Student</th>
+                                            <th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 201.6px;" aria-label="Attendance Status: activate to sort column ascending">Attendance Status</th>
+                                            <th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 72.6px;" aria-label="Note: activate to sort column ascending">Note</th>
+                                            <th class="sorting" tabindex="0" aria-controls="example-attendance" rowspan="1" colspan="1" style="width: 363.6px;" aria-label="Action: activate to sort column ascending">Action</th>
+                                            <style>
+                                                .sorting {
+                                                    background-color: #E6EBEE !important;
+
+                                                }
+                                            </style>
+                                        </tr>
                                     </thead>
                                     <tbody>
-
-
-
-
-
-
-                                                                            <tr class="selected odd">
-                                                <td class="sorting_1">
+                                        {% if attendance %}
+                                            {% for attend in attendance %}
+                                            <tr class="{% if loop.index % 2 == 1 %}odd{% else %}even{% endif %}">
+                                                <td>
                                                     <div class="icon-box icon-box-sm bg-light">
-                                                        <a class="delete-attendance" data-id="9050">
+                                                        <a class="delete-attendance" data-id="{{ attend.id }}">
                                                             <i class="material-icons" style="font-size:10px;color:red">delete</i>
                                                         </a>
                                                     </div>
                                                 </td>
-                                                <td>Mohamed Seddik Ben Hamouda</td>
+                                                <td>{{ attend.userName or 'N/A' }}</td>
                                                 <td>
-                                                                                                            <span class="badge badge-danger">
-                                                            Absent
-                                                        </span>
-                                                                                                    </td>
-                                                <td>
-                                                    <p>N/A</p>
+                                                    {% if attend.isPresent %}
+                                                        <span class="badge badge-success">Present</span>
+                                                    {% else %}
+                                                        <span class="badge badge-danger">Absent</span>
+                                                    {% endif %}
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9050" data-status="">
-                                                        Mark as Present
+                                                    <p>{{ attend.note or 'N/A' }}</p>
+                                                </td>
+                                                <td>
+                                                    <button type="button" class="btn btn-{% if attend.isPresent %}warning{% else %}primary{% endif %} toggle-attendance"
+                                                            data-id="{{ attend.id }}"
+                                                            data-status="{{ attend.isPresent }}">
+                                                        {% if attend.isPresent %}Mark as Absent{% else %}Mark as Present{% endif %}
                                                     </button>
-
-                                                    <button type="button" class="btn btn-info add-note" data-id="9050" data-note="">
-                                                        Add Note
-                                                    </button>
-                                                </td>
-                                            </tr><tr class="selected even">
-                                                <td class="sorting_1">
-                                                    <div class="icon-box icon-box-sm bg-light">
-                                                        <a class="delete-attendance" data-id="9051">
-                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                                <td>student khalil tester</td>
-                                                <td>
-                                                                                                            <span class="badge badge-danger">
-                                                            Absent
-                                                        </span>
-                                                                                                    </td>
-                                                <td>
-                                                    <p>N/A</p>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9051" data-status="">
-                                                        Mark as Present
-                                                    </button>
-
-                                                    <button type="button" class="btn btn-info add-note" data-id="9051" data-note="">
-                                                        Add Note
+                                                    <button type="button" class="btn btn-info add-note"
+                                                            data-id="{{ attend.id }}"
+                                                            data-note="{{ attend.note or '' }}">
+                                                        {% if attend.note %}Edit Note{% else %}Add Note{% endif %}
                                                     </button>
                                                 </td>
-                                            </tr><tr class="selected odd">
-                                                <td class="sorting_1">
-                                                    <div class="icon-box icon-box-sm bg-light">
-                                                        <a class="delete-attendance" data-id="9052">
-                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
-                                                        </a>
-                                                    </div>
+                                            </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr>
+                                                <td colspan="5" class="text-center">
+                                                    <p class="text-muted">No attendance records found</p>
                                                 </td>
-                                                <td>Test User</td>
-                                                <td>
-                                                                                                            <span class="badge badge-danger">
-                                                            Absent
-                                                        </span>
-                                                                                                    </td>
-                                                <td>
-                                                    <p>N/A</p>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9052" data-status="">
-                                                        Mark as Present
-                                                    </button>
-
-                                                    <button type="button" class="btn btn-info add-note" data-id="9052" data-note="">
-                                                        Add Note
-                                                    </button>
-                                                </td>
-                                            </tr><tr class="selected even">
-                                                <td class="sorting_1">
-                                                    <div class="icon-box icon-box-sm bg-light">
-                                                        <a class="delete-attendance" data-id="9053">
-                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                                <td>student2</td>
-                                                <td>
-                                                                                                            <span class="badge badge-danger">
-                                                            Absent
-                                                        </span>
-                                                                                                    </td>
-                                                <td>
-                                                    <p>N/A</p>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9053" data-status="">
-                                                        Mark as Present
-                                                    </button>
-
-                                                    <button type="button" class="btn btn-info add-note" data-id="9053" data-note="">
-                                                        Add Note
-                                                    </button>
-                                                </td>
-                                            </tr><tr class="selected odd">
-                                                <td class="sorting_1">
-                                                    <div class="icon-box icon-box-sm bg-light">
-                                                        <a class="delete-attendance" data-id="9054">
-                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                                <td>kasmi youssef</td>
-                                                <td>
-                                                                                                            <span class="badge badge-danger">
-                                                            Absent
-                                                        </span>
-                                                                                                    </td>
-                                                <td>
-                                                    <p>N/A</p>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9054" data-status="">
-                                                        Mark as Present
-                                                    </button>
-
-                                                    <button type="button" class="btn btn-info add-note" data-id="9054" data-note="">
-                                                        Add Note
-                                                    </button>
-                                                </td>
-                                            </tr><tr class="selected even">
-                                                <td class="sorting_1">
-                                                    <div class="icon-box icon-box-sm bg-light">
-                                                        <a class="delete-attendance" data-id="9055">
-                                                            <i class="material-icons" style="font-size:10px;color:red">delete</i>
-                                                        </a>
-                                                    </div>
-                                                </td>
-                                                <td>Med Firas Kasmi</td>
-                                                <td>
-                                                                                                            <span class="badge badge-danger">
-                                                            Absent
-                                                        </span>
-                                                                                                    </td>
-                                                <td>
-                                                    <p>N/A</p>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-primary toggle-attendance" data-id="9055" data-status="">
-                                                        Mark as Present
-                                                    </button>
-
-                                                    <button type="button" class="btn btn-info add-note" data-id="9055" data-note="">
-                                                        Add Note
-                                                    </button>
-                                                </td>
-                                            </tr></tbody>
-                                </table><div class="dataTables_info" id="example-attendance_info" role="status" aria-live="polite">Showing 1 to 6 of 6 entries</div><div class="dataTables_paginate paging_simple_numbers" id="example-attendance_paginate"><a class="paginate_button previous disabled" aria-controls="example-attendance" data-dt-idx="0" tabindex="-1" id="example-attendance_previous"><i class="fa-solid fa-angle-left"></i></a><span><a class="paginate_button current" aria-controls="example-attendance" data-dt-idx="1" tabindex="0">1</a></span><a class="paginate_button next disabled" aria-controls="example-attendance" data-dt-idx="2" tabindex="-1" id="example-attendance_next"><i class="fa-solid fa-angle-right"></i></a></div></div>
+                                            </tr>
+                                        {% endif %}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-
+        </div>
     </div>
 </div>
+
+<!-- Add User Modal -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-labelledby="addUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addUserModalLabel">Add New User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="mb-3">
+                        <label for="userSelect" class="form-label">Select User</label>
+                        <select id="userSelect" name="userSelect" class="form-control" required>
+                            <option value="">-- Select a student --</option>
+                            {% for stud in student %}
+                            <option value="{{ stud['id'] }}"
+                                    data-relation-id="{{ stud['relationId'] }}"
+                                    data-group-id="{{ stud['groupId'] }}">
+                                {{ stud['fullName'] }}
+                            </option>
+                            {% endfor %}
+                        </select>
+
+                        <input type="hidden" id="calanderId" value="{{ id_calander }}">
+                        <input type="hidden" id="sessionId" value="{{ calender_detail.session_id }}">
+                        <input type="hidden" id="groupId" value="{{ calender_detail.group_session_id }}">
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="addUserToGroup">Change user group?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="addUserToGroup">
+                            <label class="form-check-label" for="addUserToGroup">
+                                Change user to selected group
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="joinNewGroup">Join user to this group?</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="joinNewGroup">
+                            <label class="form-check-label" for="joinNewGroup">
+                                Add user to this group
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="addNewUserAttendance">Add User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Fix the select when modal opens - keep Bootstrap styling
+document.getElementById('addUserModal').addEventListener('shown.bs.modal', function() {
+    var select = document.getElementById('userSelect');
+    if (!select) return;
+
+    // Remove any bootstrap-select wrapper
+    var wrapper = select.closest('.bootstrap-select');
+    if (wrapper && wrapper.parentNode) {
+        wrapper.parentNode.insertBefore(select, wrapper);
+        wrapper.remove();
+    }
+
+    // Reset problematic attributes only
+    select.removeAttribute('tabindex');
+    select.style.display = '';
+    select.style.visibility = '';
+    select.style.opacity = '';
+
+    console.log('Select fixed - keeping Bootstrap styles');
+});
+
+
+
+funcition change_status(){}
+
+</script>

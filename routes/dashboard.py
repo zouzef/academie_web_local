@@ -9,6 +9,58 @@ dashboard_bp = Blueprint('dashboard', __name__)
 # HELPER FUNCTIONS - API CALLS TO SLC
 # ==========================================
 
+# function to get list student of the calendar
+def get_list_student(calendar_id):
+	url = f"https://172.28.20.5:5004/scl/list-add-student-attendance/{calendar_id}"
+	try:
+		response = requests.get(url, verify=False)
+		response.raise_for_status()
+		if response.status_code == 200:
+			data = response.json()
+			users = data.get("users",[])
+			return users
+		else:
+			print("there is no user for this attendance")
+			return []
+
+	except Exception as e:
+		print(f"Problem {e} is coming from the server ")
+		return []
+
+
+# function to get the detail of the calendar
+def detail_calender_by_id(calender_id):
+	url=f"https://172.28.20.5:5004/scl/get_calander_id/{calender_id}"
+	try:
+		response = requests.get(url,verify=False)
+		response.raise_for_status()
+		if(response.status_code==200):
+			data= response.json()
+			calendar=data.get("data",[])
+			return calendar
+	except Exception as e :
+		print(f"DEBUG: Error {e} from the local server !!")
+		return []
+
+
+# function to get the attendance of the calendar
+def attendance_by_id(calendar_id):
+	url = f"https://172.28.20.5:5004/scl/get-attendance/{calendar_id}"
+	try:
+		response = requests.get(url,verify=False)
+		response.raise_for_status()
+		if response.status_code == 200:
+			data = response.json()
+			attendance = data.get("attendance",[])
+			return attendance
+		else:
+			print("there is no attendance for this calendar")
+			return []
+	except Exception as e :
+		print("Error coming from server")
+		return []
+
+
 def get_calander_per_session(account_id, session_id):
 	"""Get calendar data for a specific session from SLC API"""
 	url = f"https://172.28.20.5:5004/scl/get_calendar_session/{session_id}/{account_id}"
@@ -160,13 +212,13 @@ def show_session_config(id_session):
 	data_modera = get_data_moderateur(account_id)
 
 	return render_template('index.html',
-						   id_session=id_session,
-						   calendar_data=calendar_data,
-						   local_details=local_details,
-						   sessions=sessions,
-						   data_modera=data_modera,
-						   page='session_config')
-
+	                       id_session=id_session,
+                           account_id=account_id,  # Add this line
+                           calendar_data=calendar_data,
+                           local_details=local_details,
+                           sessions=sessions,
+                           data_modera=data_modera,
+                           page='session_config')
 
 # ==========================================
 # CALENDAR ROUTES
@@ -206,22 +258,59 @@ def show_create_group_session(id_session):
 def show_attendance_page(session_id):
 	"""Show attendance overview for session"""
 	if 'moderator_id' not in session:
-		return redirect(url_for('auth.login'))
+	    return redirect(url_for('auth.login'))
+
+	account_id = session.get('account_id', 3)  # Add this line
 
 	return render_template('index.html',
-						   id_session=session_id,
-						   page='attendance_page')
+	                       id_session=session_id,
+                           account_id=account_id,  # Add this line
+                           page='attendance_page')
 
-
-@dashboard_bp.route('/dashboard/show-attendance-presence/<int:id_attendance>')
-def show_attendance_presence(id_attendance):
+# Page of attendance per session
+@dashboard_bp.route('/dashboard/show-attendance-presence/<int:id_calander>')
+def show_attendance_presence(id_calander):
+	from datetime import datetime
 	"""Show detailed attendance/presence page"""
 	if 'moderator_id' not in session:
 		return redirect(url_for('auth.login'))
 
+	calender_detail = detail_calender_by_id(id_calander)
+	attendance = attendance_by_id(id_calander)
+	list_student = get_list_student(id_calander)
+
+	# Parse datetime strings if they exist
+	if calender_detail and isinstance(calender_detail.get('start_time'), str):
+		try:
+			calender_detail['start_time'] = datetime.strptime(
+				calender_detail['start_time'],
+				'%a, %d %b %Y %H:%M:%S %Z'
+			)
+		except (ValueError, TypeError):
+			calender_detail['start_time'] = None
+
+	if calender_detail and isinstance(calender_detail.get('end_time'), str):
+		try:
+			calender_detail['end_time'] = datetime.strptime(
+				calender_detail['end_time'],
+				'%a, %d %b %Y %H:%M:%S %Z'
+			)
+		except (ValueError, TypeError):
+			calender_detail['end_time'] = None
+
 	return render_template('index.html',
-						   id_attendance=id_attendance,
+						   id_calander=id_calander,
+						   calender_detail=calender_detail,
+						   attendance=attendance,
+						   student=list_student,
 						   page='show_attendance_presence')
+
+
+# @dashboard_bp.route()
+# def update_attendance(status,id_attendance):
+
+
+
 
 
 # ==========================================
@@ -259,3 +348,21 @@ def show_user_session(id_user, id_session):
 						   id_user=id_user,
 						   id_session=id_session,
 						   page='show_payment_user_session')
+
+
+
+# ==========================================
+# UNKNOWN ROUTES
+# ==========================================
+
+# Show page unknown
+@dashboard_bp.route('/dashboard/show-attendance-unknown-student/<int:calender_id>')
+def show_attendance_unknown(calender_id):
+	"""show unknown student"""
+	if 'moderator_id' not in session:
+		return redirect(url_for('auth.login'))
+	else:
+		return render_template('index.html',
+							   calender_id = calender_id,
+							   page="show-unknown-student")
+

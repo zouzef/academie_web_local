@@ -1,26 +1,43 @@
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if calendar-info element exists on this page
+    var calendarInfoEl = document.getElementById('calendar-info');
+    if (!calendarInfoEl) {
+        console.log('Calendar info element not found - skipping calendar initialization');
+        return; // Exit early if not on a calendar page
+    }
+
     var Calendar = FullCalendar.Calendar;
     var Draggable = FullCalendar.Draggable;
 
     var containerEl = document.getElementById('external-events');
-    var calendarEl = document.getElementById('calendar');
 
-    // Get session_id and account_id
-    var sessionId = 12;
-    var accountId = 3;
+    // Get data from calendar-info div
+    var sessionId = parseInt(calendarInfoEl.dataset.sessionId);
+    var accountId = parseInt(calendarInfoEl.dataset.accountId);
 
     console.log('Session ID:', sessionId);
     console.log('Account ID:', accountId);
 
+    // Get the actual calendar element to render on
+    var calendarEl = document.getElementById('calendar');
+
+    // Check if calendar element exists
+    if (!calendarEl) {
+        console.error('Calendar element not found');
+        return;
+    }
+
     // Initialize the external events
-    new Draggable(containerEl, {
-      itemSelector: '.external-event',
-      eventData: function(eventEl) {
-        return {
-          title: eventEl.innerText
-        };
-      }
-    });
+    if (containerEl) {
+        new Draggable(containerEl, {
+          itemSelector: '.external-event',
+          eventData: function(eventEl) {
+            return {
+              title: eventEl.innerText
+            };
+          }
+        });
+    }
 
     // Function to adjust timezone - SUBTRACT 1 hour
     function adjustTimezone(dateString) {
