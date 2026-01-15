@@ -224,6 +224,27 @@ def show_session_config(id_session):
 # CALENDAR ROUTES
 # ==========================================
 
+
+# api get group
+@dashboard_bp.route('/api/get-group/<int:session_id>/<int:account_id>')
+def get_group_api(session_id,account_id):
+	url = f"https://172.28.20.5:5004/scl/get-group/{account_id}/{session_id}"
+	try:
+		response = requests.get(url,verify=False)
+		response.raise_for_status()
+		if response.status_code ==200:
+			data = response.json()
+			groups = data.get("data",[])
+			return jsonify({"Message":"Success", "data":groups}),200
+		else:
+			return jsonify({"Message":"Error","data":[]}),400
+	except Exception as e:
+		print(f"Error coming from get_group_route {e}")
+		return jsonify({"Message": "Error"}),500
+
+
+
+
 @dashboard_bp.route('/dashboard/create-session-calendar/<int:id_session>')
 def show_create_session_calendar(id_session):
 	"""Create/edit session calendar page"""
@@ -421,8 +442,10 @@ def reset_attendance(calander_id):
 		print("Error coming from reset_attendance")
 		return jsonify({"Message":f"Error {e}"}),500
 
-#api to get statistic
 
+
+
+#api to get statistic
 @dashboard_bp.route("/api/get-statistic/<int:calander_id>",methods=["GET"])
 def get_calender_statistic(calander_id):
 	url =f"https://172.28.20.5:5004/scl/attendance-statistics/{calander_id}"

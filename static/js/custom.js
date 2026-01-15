@@ -857,11 +857,11 @@ function change_status() {
     });
 }
 
-// Save note button click handler
-document.getElementById('saveNoteButton').addEventListener('click', function(e) {
-    e.preventDefault();
-    change_status();
-});
+//// Save note button click handler
+//document.getElementById('saveNoteButton').addEventListener('click', function(e) {
+//    e.preventDefault();
+//    change_status();
+//});
 
 
 
@@ -1092,6 +1092,169 @@ document.addEventListener('DOMContentLoaded', function() {
         downloadButton.addEventListener('click', function(e) {
             e.preventDefault();
             download_attendance_pdf();
+        });
+    }
+});
+
+function loadGroupsToExternalEvents(accountId, sessionId) {
+
+    fetch(`/api/get-group/${sessionId}/${accountId}`, {
+        method: 'GET',
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(data => {
+        if (data.data) {
+            const groups = data.data;
+            console.log(groups);
+            const container = document.getElementById('my-custom-events');
+
+            // Clear previous groups
+            container.innerHTML = '';
+
+            // Colors to cycle through
+            const colors = ['bg-info'];
+
+            // Create div for each group
+            groups.forEach((group, index) => {
+                const color = colors[index % colors.length];
+                const buttonClass = color.replace('bg-', 'btn-');
+
+                const groupDiv = document.createElement('div');
+                groupDiv.className = `external-event ${buttonClass} light`;
+                groupDiv.setAttribute('data-class', color);
+                groupDiv.innerHTML = `
+                    <i class="fa fa-move"></i>
+                    <span>${group.name}</span>
+                `;
+
+                container.appendChild(groupDiv);
+
+                console.log(`Group ${index + 1}:`, {
+                    id: group.id,
+                    name: group.name,
+                    capacity: group.capacity,
+                    session_id: group.session_id,
+                    local_id: group.local_id,
+                    status: group.status
+                });
+            });
+
+            console.log(`Loaded ${groups.length} groups successfully`);
+
+        } else {
+            console.error('No data.data found');
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching groups:", error);
+    });
+}
+
+// Call it when page loads - get accountId and sessionId from data attributes
+document.addEventListener('DOMContentLoaded', function() {
+    // Get data from the calendar-info div
+    const calendarInfo = document.getElementById('calendar-info');
+
+    if (calendarInfo) {
+        const sessionId = parseInt(calendarInfo.getAttribute('data-session-id'));
+        const accountId = parseInt(calendarInfo.getAttribute('data-account-id'));
+
+        console.log('Loading groups for Session:', sessionId, 'Account:', accountId);
+        loadGroupsToExternalEvents(accountId, sessionId);
+    } else {
+        console.error('calendar-info element not found');
+    }
+});
+
+
+
+// Add this JavaScript to handle the modal dropdown shows
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Handle when duplicate dropdown changes to show/hide time fields
+    const eventDuplicate = document.getElementById('eventDuplicate');
+
+    if (eventDuplicate) {
+        eventDuplicate.addEventListener('change', function() {
+            const startTimeFields = document.getElementById('startTimeFields');
+            const endTimeFields = document.getElementById('endTimeFields');
+            const eventEndFields = document.getElementById('eventEndFields');
+
+            if (this.value !== 'none' && this.value !== '') {
+                // Show time fields for recurring events
+                startTimeFields.style.display = 'block';
+                endTimeFields.style.display = 'block';
+                eventEndFields.style.display = 'block';
+            } else {
+                // Hide time fields for non-recurring events
+                startTimeFields.style.display = 'none';
+                endTimeFields.style.display = 'none';
+                eventEndFields.style.display = 'none';
+            }
+        });
+    }
+
+    // Handle save event button
+    const saveEventButton = document.getElementById('saveEventButton');
+    if (saveEventButton) {
+        saveEventButton.addEventListener('click', function() {
+            const eventForm = document.getElementById('eventForm');
+
+            if (!eventForm.checkValidity()) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Get form data
+            const formData = {
+                title: document.getElementById('eventTitle').value,
+                date: document.getElementById('eventDate').value,
+                type: document.getElementById('typeSessionSelect').value,
+                room: document.getElementById('eventRoom').value,
+                subject: document.getElementById('eventSubject').value,
+                completionTags: Array.from(document.getElementById('eventCompletionTagCalander').selectedOptions).map(option => option.value),
+                duplicate: document.getElementById('eventDuplicate').value,
+                startTime: document.getElementById('eventStartTime').value || null,
+                endTime: document.getElementById('eventEndTime').value || null,
+                endDate: document.getElementById('eventEndDate').value || null,
+                description: document.getElementById('eventDescription').value,
+                groupId: document.getElementById('eventGroupId').value,
+                groupCapacity: document.getElementById('eventGroupCapacity').value,
+                sessionId: document.getElementById('eventSessionId').value,
+                accountId: document.getElementById('eventAccountId').value,
+                localId: document.getElementById('eventLocalId').value
+            };
+
+            console.log('Form Data:', formData);
+
+            // Send to backend
+            fetch('/api/create-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                if (data.success) {
+                    alert('Event created successfully!');
+                    // Close modal
+                    const eventModal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+                    eventModal.hide();
+                    // Reload calendar
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create event');
+            });
         });
     }
 });

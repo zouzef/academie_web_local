@@ -1,5 +1,10 @@
 <div class="content-body ">
     <div class="container-fluid">
+        <div id="calendar-info"
+             data-session-id="12"
+             data-account-id="3"
+             style="display: none;">
+        </div>
         <!-- row -->
         <div class="top-bar p-2">
             <div class="row">
@@ -30,13 +35,32 @@
                         <div class="">
                             <div id="external-events" class="my-3">
                                 <p>Drag and drop your event or click in the calendar</p>
-                                <div class="external-event btn-primary light" data-class="bg-primary"><i class="fa fa-move"></i><span>New Theme Release</span></div>
-                                <div class="external-event btn-warning light" data-class="bg-warning"><i class="fa fa-move"></i>My Event
-                                </div>
-                                <div class="external-event btn-danger light" data-class="bg-danger"><i class="fa fa-move"></i>Meet manager</div>
-                                <div class="external-event btn-info light" data-class="bg-info"><i class="fa fa-move"></i>Create New theme</div>
-                                <div class="external-event btn-dark light" data-class="bg-dark"><i class="fa fa-move"></i>Project Launch</div>
-                                <div class="external-event btn-secondary light" data-class="bg-secondary"><i class="fa fa-move"></i>Meeting</div>
+
+<!--                                <div class="external-event btn-primary light" data-class="bg-primary">-->
+<!--                                    <i class="fa fa-move"></i>-->
+<!--                                    <span>New Theme Release</span>-->
+<!--                                </div>-->
+<!--                                <div class="external-event btn-warning light" data-class="bg-warning">-->
+<!--                                    <i class="fa fa-move"></i>-->
+<!--                                    My Event-->
+<!--                                </div>-->
+<!--                                <div class="external-event btn-danger light" data-class="bg-danger">-->
+<!--                                    <i class="fa fa-move"></i>-->
+<!--                                    Meet manager-->
+<!--                                </div>-->
+<!--                                <div class="external-event btn-info light" data-class="bg-info">-->
+<!--                                    <i class="fa fa-move"></i>-->
+<!--                                    Create New theme-->
+<!--                                </div>-->
+<!--                                <div class="external-event btn-dark light" data-class="bg-dark">-->
+<!--                                    <i class="fa fa-move"></i>-->
+<!--                                    Project Launch-->
+<!--                                </div>-->
+<!--                                <div class="external-event btn-secondary light" data-class="bg-secondary">-->
+<!--                                    <i class="fa fa-move"></i>-->
+<!--                                    Meeting-->
+<!--                                </div>-->
+                                    <div id="my-custom-events" class="my-3"></div>
                             </div>
                             <!-- checkbox -->
 
@@ -115,6 +139,111 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- ADD THIS MODAL TO YOUR HTML (before closing </div> of container) -->
+
+<!-- ADD THIS MODAL TO YOUR HTML (before closing </div> of container) -->
+<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalLabel">Create Event</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="eventForm">
+                    <div class="mb-3">
+                        <label for="eventTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="eventTitle" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="eventDate" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="typeSessionSelect" class="form-label">Type</label>
+                        <select class="form-control" id="typeSessionSelect" required>
+                            <option value="">Select Type</option>
+                            <option value="P">Presence (P)</option>
+                            <option value="O">Online (O)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventRoom" class="form-label">Room</label>
+                        <select class="form-control" id="eventRoom" required>
+                            <option value="">Select a Room</option>
+                            <option value="7">class khalil</option>
+                            <option value="8">class haythm</option>
+                            <option value="9">classe test</option>
+                            <option value="10">classe kasmi</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventSubject" class="form-label">Teacher And Subject</label>
+                        <select class="form-control" id="eventSubject" required>
+                            <option value="">Select a Subject and Teacher</option>
+                            <option value="69" data-subject="1" data-user="374">Subject : Math - Teacher : youssef kasmi</option>
+                            <option value="79" data-subject="1" data-user="4">Subject : Math - Teacher : Mkaissi khalil</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventCompletionTagCalander" class="form-label">Completion Tag</label>
+                        <select class="form-control" id="eventCompletionTagCalander" multiple required>
+                            <option value="1">Bronze</option>
+                            <option value="2">Silver</option>
+                            <option value="3">Gold</option>
+                            <option value="4">Platinum</option>
+                            <option value="5">Diamond</option>
+                            <option value="6">Master</option>
+                            <option value="7">Grand Master</option>
+                            <option value="8">Legendary</option>
+                            <option value="10">fonction 1</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDuplicate" class="form-label">Duplicate</label>
+                        <select class="form-control" id="eventDuplicate" required>
+                            <option value="">Select an Option</option>
+                            <option value="none">Not Duplicate</option>
+                            <option value="daily">Per Day</option>
+                            <option value="weekly">Per Week</option>
+                            <option value="biweekly">Every 2 Weeks</option>
+                        </select>
+                    </div>
+                    <div class="mb-3" id="startTimeFields" style="display: none;">
+                        <label for="eventStartTime" class="form-label">Start Time</label>
+                        <input type="time" class="form-control" id="eventStartTime">
+                    </div>
+                    <div class="mb-3" id="endTimeFields" style="display: none;">
+                        <label for="eventEndTime" class="form-label">End Time</label>
+                        <input type="time" class="form-control" id="eventEndTime">
+                    </div>
+                    <div class="mb-3" id="eventEndFields" style="display: none;">
+                        <label for="eventEndDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="eventEndDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="eventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                    </div>
+
+                    <!-- Hidden fields to store dropped group info -->
+                    <input type="hidden" id="eventGroupId">
+                    <input type="hidden" id="eventGroupCapacity">
+                    <input type="hidden" id="eventSessionId">
+                    <input type="hidden" id="eventAccountId">
+                    <input type="hidden" id="eventLocalId">
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" id="saveEventButton">Save</button>
             </div>
         </div>
     </div>

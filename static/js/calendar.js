@@ -33,7 +33,9 @@ document.addEventListener('DOMContentLoaded', function() {
           itemSelector: '.external-event',
           eventData: function(eventEl) {
             return {
-              title: eventEl.innerText
+              title: eventEl.innerText,
+              groupId: eventEl.getAttribute('data-group-id'),
+              groupCapacity: eventEl.getAttribute('data-group-capacity')
             };
           }
         });
@@ -113,6 +115,34 @@ document.addEventListener('DOMContentLoaded', function() {
             console.error('Error message:', error.message);
             failureCallback(error);
           });
+      },
+
+      // OPEN MODAL WHEN GROUP IS DROPPED
+      drop: function(info) {
+        console.log('=== GROUP DROPPED ===');
+        console.log('Dropped event:', info);
+
+        const droppedDate = info.date;
+        const groupName = info.draggedEl.innerText.trim();
+        const groupId = info.draggedEl.getAttribute('data-group-id');
+        const groupCapacity = info.draggedEl.getAttribute('data-group-capacity');
+
+        console.log('Group Name:', groupName);
+        console.log('Group ID:', groupId);
+        console.log('Group Capacity:', groupCapacity);
+        console.log('Dropped Date:', droppedDate);
+
+        // Populate the form with dropped group info
+        document.getElementById('eventTitle').value = groupName;
+        document.getElementById('eventDate').value = droppedDate.toISOString().split('T')[0];
+        document.getElementById('eventGroupId').value = groupId;
+        document.getElementById('eventGroupCapacity').value = groupCapacity;
+        document.getElementById('eventSessionId').value = sessionId;
+        document.getElementById('eventAccountId').value = accountId;
+
+        // Open the modal
+        const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
+        eventModal.show();
       },
 
       // Redirect to attendance page when event is clicked
