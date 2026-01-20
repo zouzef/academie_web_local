@@ -8,12 +8,18 @@ import urllib3
 auth_bp = Blueprint('auth', __name__)
 
 
+# ===============================
+# VARIABLES
+# ===============================
+BASE_URL = "https://172.28.20.111:5004/scl/"
+
+
 def check_login(username, password):
 	payload = {
 		"username": username,  # ✅ Correct - string keys
 		"password": password  # ✅ Correct - string keys
 	}
-	url = "https://172.28.20.5:5004/scl/authentification-moderateur"
+	url = f"{BASE_URL}authentification-moderateur"
 
 	try:
 		response = requests.post(url, json=payload, verify=False, timeout=10)

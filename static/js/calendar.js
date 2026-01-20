@@ -119,31 +119,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // OPEN MODAL WHEN GROUP IS DROPPED
       drop: function(info) {
-        console.log('=== GROUP DROPPED ===');
-        console.log('Dropped event:', info);
+    console.log('=== GROUP DROPPED ===');
+    console.log('Dropped event:', info);
 
-        const droppedDate = info.date;
-        const groupName = info.draggedEl.innerText.trim();
-        const groupId = info.draggedEl.getAttribute('data-group-id');
-        const groupCapacity = info.draggedEl.getAttribute('data-group-capacity');
+    const droppedDate = info.date;
+    const groupName = info.draggedEl.innerText.trim();
+    const groupId = info.draggedEl.getAttribute('data-group-id');
+    const groupCapacity = info.draggedEl.getAttribute('data-group-capacity');
 
-        console.log('Group Name:', groupName);
-        console.log('Group ID:', groupId);
-        console.log('Group Capacity:', groupCapacity);
-        console.log('Dropped Date:', droppedDate);
+    console.log('Group Name:', groupName);
+    console.log('Group ID:', groupId);
+    console.log('Group Capacity:', groupCapacity);
+    console.log('Dropped Date:', droppedDate);
 
-        // Populate the form with dropped group info
-        document.getElementById('eventTitle').value = groupName;
-        document.getElementById('eventDate').value = droppedDate.toISOString().split('T')[0];
-        document.getElementById('eventGroupId').value = groupId;
-        document.getElementById('eventGroupCapacity').value = groupCapacity;
-        document.getElementById('eventSessionId').value = sessionId;
-        document.getElementById('eventAccountId').value = accountId;
+    // Open the modal first - NEW ID
+    const modalElement = document.getElementById('createEventModal');
+    if (!modalElement) {
+        console.error('Modal element not found: createEventModal');
+        return;
+    }
 
-        // Open the modal
-        const eventModal = new bootstrap.Modal(document.getElementById('eventModal'));
-        eventModal.show();
-      },
+    const eventModal = new bootstrap.Modal(modalElement);
+    eventModal.show();
+
+    // Wait for modal to be shown, then populate the form
+    modalElement.addEventListener('shown.bs.modal', function() {
+        // Safely populate the form with dropped group info - NEW IDs
+        const eventTitle = document.getElementById('createEventTitle');
+        const eventDate = document.getElementById('createEventDate');
+        const eventGroupId = document.getElementById('createEventGroupId');
+        const eventGroupCapacity = document.getElementById('createEventGroupCapacity');
+        const eventSessionId = document.getElementById('createEventSessionId');
+        const eventAccountId = document.getElementById('createEventAccountId');
+
+        if (eventTitle) eventTitle.value = groupName;
+        if (eventDate) eventDate.value = droppedDate.toISOString().split('T')[0];
+        if (eventGroupId) eventGroupId.value = groupId;
+        if (eventGroupCapacity) eventGroupCapacity.value = groupCapacity;
+        if (eventSessionId) eventSessionId.value = sessionId;
+        if (eventAccountId) eventAccountId.value = accountId;
+
+        // Log which elements were found/not found
+        console.log('createEventTitle found:', !!eventTitle);
+        console.log('createEventDate found:', !!eventDate);
+        console.log('createEventGroupId found:', !!eventGroupId);
+        console.log('createEventGroupCapacity found:', !!eventGroupCapacity);
+        console.log('createEventSessionId found:', !!eventSessionId);
+        console.log('createEventAccountId found:', !!eventAccountId);
+        }, { once: true });
+    },
 
       // Redirect to attendance page when event is clicked
       eventClick: function(info) {

@@ -455,10 +455,10 @@ handlePreloader();
 
    
     var handelBootstrapSelect = function(){
-        /* Bootstrap Select box function by  = bootstrap-select.min.js */
+    /* Bootstrap Select box function by  = bootstrap-select.min.js */
         if(jQuery('select').length > 0){
-            jQuery('select').selectpicker();
-        /* Bootstrap Select box function by  = bootstrap-select.min.js end*/
+            // Only initialize selectpicker for selects NOT inside modals
+            jQuery('select').not('.modal select').selectpicker();
         }
     }
  
@@ -743,8 +743,9 @@ jQuery(window).on('resize',function () {
 
 
 
-/*====================== js pour page show attendance ======================*/
-// Function to update attendance status
+/*==========================================*/
+/* ======== FUNCTION TO UPDATE ATTENDANCE ========*/
+/*==========================================*/
 function update_attendance(attendanceId, button) {
     // Read the current status from the button's data attribute
     const currentStatus = button.getAttribute('data-status');
@@ -806,8 +807,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
-// Function 2: Add or edit note
 
+/*==========================================*/
+/* ======== FUNCTION TO UPDATE NOTE ========*/
+/*==========================================*/
 
 // Function to save note
 function change_status() {
@@ -842,7 +845,7 @@ function change_status() {
                 modal.hide();
             }
 
-            // 🔥 FORCE REMOVE BACKDROP & SCROLL LOCK
+
             document.body.classList.remove('modal-open');
             document.body.style.paddingRight = '';
             document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
@@ -864,7 +867,9 @@ function change_status() {
 //});
 
 
-
+/*==========================================*/
+/* ======== FUNCTION TO RESET ATTENDANCE ========*/
+/*==========================================*/
 
 /* Function to reset attendance */
 function reset_attendance(calendar_id) {
@@ -895,10 +900,12 @@ function reset_attendance(calendar_id) {
 }
 
 
+/*==========================================*/
+/* ======== FUNCTION TO LOAD SATISTIC ========*/
+/*==========================================*/
 
 
-let attendanceChart = null; // global variable to hold chart instance
-/* Get statistic funtion */
+let attendanceChart = null;
 function get_statistic(calendar_id) {
     fetch(`/api/get-statistic/${calendar_id}`, {
         method: 'GET',
@@ -967,7 +974,9 @@ function get_statistic(calendar_id) {
 
 
 
-/* Function to download pdf */
+/*==========================================*/
+/* ======== FUNCTION TO DOWNLOAD PDF ========*/
+/*==========================================*/
 
 function download_attendance_pdf() {
     const button = document.getElementById('download-attendance-pdf');
@@ -1096,8 +1105,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-function loadGroupsToExternalEvents(accountId, sessionId) {
 
+
+/*==========================================*/
+/* ======== FUNCTION TO LOAD GROUP ========*/
+/*==========================================*/
+
+function loadGroupsToExternalEvents(accountId, sessionId) {
     fetch(`/api/get-group/${sessionId}/${accountId}`, {
         method: 'GET',
     })
@@ -1170,25 +1184,167 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 
+/*==========================================*/
+/* ======== FUNCTION TO LOAD ROOM ========*/
+/*==========================================*/
+
+
+function load_room(local_id) {
+    fetch(`/api/get_room/${local_id}`, {
+        method: 'GET',
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(data => {
+        if (data.Room) {
+            const rooms = data.Room;
+            console.log(rooms);
+
+            // Get the room options container
+            const roomOptions = document.querySelector('.custom-select[data-name="createEventRoom"] .options');
+
+            if (roomOptions) {
+                // Clear existing options except the first one (placeholder)
+                roomOptions.innerHTML = '<div data-value="">Select a Room</div>';
+
+                // Add rooms dynamically
+                rooms.forEach(room => {
+                    const optionDiv = document.createElement('div');
+                    optionDiv.setAttribute('data-value', room.id);  // Assuming room has 'id' property
+                    optionDiv.textContent = room.name;  // Assuming room has 'name' property
+                    roomOptions.appendChild(optionDiv);
+                });
+
+                console.log(`Loaded ${rooms.length} rooms successfully`);
+            } else {
+                console.error('Room options container not found');
+            }
+        } else {
+            console.error('No Room data found');
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching room:", error);
+    });
+}
+
+// Call it when page loads - get local_id from data attributes
+document.addEventListener('DOMContentLoaded', function() {
+    // Get data from the calendar-info div
+    const calendarInfo = document.getElementById('calendar-info');
+    if (calendarInfo) {
+        const local_id = parseInt(calendarInfo.getAttribute('data-local-id'));
+        console.log('Loading rooms for local:', local_id);
+        load_room(local_id);
+    } else {
+        console.error('calendar-info element not found');
+    }
+});
+
+
+
+/*==========================================*/
+/* ======== FUNCTION TO LOAD TEACHER ========*/
+/*==========================================*/
+
+function load_teachers(session_id) {
+    fetch(`/api/get_teacher/${session_id}`, {
+        method: 'GET',
+    })
+    .then(response => {
+        return response.json();
+    })
+    .then(data => {
+        if (data.teacher) {
+            const teachers = data.teacher;
+            console.log('Teachers:', teachers);
+
+            // Get the teacher/subject options container
+            const teacherOptions = document.querySelector('.custom-select[data-name="createEventSubject"] .options');
+
+            if (teacherOptions) {
+                // Clear existing options except the first one (placeholder)
+                teacherOptions.innerHTML = '<div data-value="">Select a Subject and Teacher</div>';
+
+                // Add teachers dynamically
+                teachers.forEach(teacher => {
+                    const optionDiv = document.createElement('div');
+
+                    // Set attributes - adjust these based on your teacher object structure
+                    optionDiv.setAttribute('data-value', teacher.id);  // or teacher.teacher_id
+                    optionDiv.setAttribute('data-subject', teacher.subject_id || '1');  // if you have subject_id
+                    optionDiv.setAttribute('data-user', teacher.id);
+
+                    // Set text - adjust based on your teacher object structure
+                    const subjectName = teacher.subject_name || 'Math';  // if you have subject_name
+                    const teacherName = `${teacher.first_name} ${teacher.last_name}`;  // or teacher.full_name
+
+                    optionDiv.textContent = `Subject : ${subjectName} - Teacher : ${teacherName}`;
+
+                    teacherOptions.appendChild(optionDiv);
+                });
+
+                console.log(`Loaded ${teachers.length} teachers successfully`);
+
+                // Re-initialize the click handlers for the new options
+                initCustomSelects();
+            } else {
+                console.error('Teacher options container not found');
+            }
+        } else {
+            console.error('No teacher data found');
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching teachers:", error);
+    });
+}
+
+// Update your DOMContentLoaded to also load teachers
+document.addEventListener('DOMContentLoaded', function() {
+    const calendarInfo = document.getElementById('calendar-info');
+    if (calendarInfo) {
+        const session_id = parseInt(calendarInfo.getAttribute('data-session-id'));
+        const local_id = parseInt(calendarInfo.getAttribute('data-local-id'));
+
+        console.log('Loading rooms for local:', local_id);
+        load_room(local_id);
+
+        console.log('Loading teachers for session:', session_id);
+        load_teachers(session_id);
+    } else {
+        console.error('calendar-info element not found');
+    }
+});
+
+
+
+
+
+
+
+
 // Add this JavaScript to handle the modal dropdown shows
 document.addEventListener('DOMContentLoaded', function() {
 
-    // Handle when duplicate dropdown changes to show/hide time fields
-    const eventDuplicate = document.getElementById('eventDuplicate');
+    // Prevent Bootstrap Select from initializing on modal selects
+    $('#createEventModal select, #viewEventModal select').addClass('no-selectpicker');
 
-    if (eventDuplicate) {
-        eventDuplicate.addEventListener('change', function() {
-            const startTimeFields = document.getElementById('startTimeFields');
-            const endTimeFields = document.getElementById('endTimeFields');
-            const eventEndFields = document.getElementById('eventEndFields');
+    // Handle when duplicate dropdown changes - CREATE MODAL (use regular change event)
+    const createEventDuplicate = document.getElementById('createEventDuplicate');
+    if (createEventDuplicate) {
+        createEventDuplicate.addEventListener('change', function() {
+            const value = this.value;
+            const startTimeFields = document.getElementById('createStartTimeFields');
+            const endTimeFields = document.getElementById('createEndTimeFields');
+            const eventEndFields = document.getElementById('createEventEndFields');
 
-            if (this.value !== 'none' && this.value !== '') {
-                // Show time fields for recurring events
+            if (value !== 'none' && value !== '') {
                 startTimeFields.style.display = 'block';
                 endTimeFields.style.display = 'block';
                 eventEndFields.style.display = 'block';
             } else {
-                // Hide time fields for non-recurring events
                 startTimeFields.style.display = 'none';
                 endTimeFields.style.display = 'none';
                 eventEndFields.style.display = 'none';
@@ -1196,35 +1352,36 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Handle save event button
-    const saveEventButton = document.getElementById('saveEventButton');
-    if (saveEventButton) {
-        saveEventButton.addEventListener('click', function() {
-            const eventForm = document.getElementById('eventForm');
+
+    // Handle save event button for CREATE modal
+    const createSaveEventButton = document.getElementById('createSaveEventButton');
+    if (createSaveEventButton) {
+        createSaveEventButton.addEventListener('click', function() {
+            const eventForm = document.getElementById('createEventForm');
 
             if (!eventForm.checkValidity()) {
                 alert('Please fill in all required fields');
                 return;
             }
 
-            // Get form data
+            // Get form data - using CREATE modal IDs
             const formData = {
-                title: document.getElementById('eventTitle').value,
-                date: document.getElementById('eventDate').value,
-                type: document.getElementById('typeSessionSelect').value,
-                room: document.getElementById('eventRoom').value,
-                subject: document.getElementById('eventSubject').value,
-                completionTags: Array.from(document.getElementById('eventCompletionTagCalander').selectedOptions).map(option => option.value),
-                duplicate: document.getElementById('eventDuplicate').value,
-                startTime: document.getElementById('eventStartTime').value || null,
-                endTime: document.getElementById('eventEndTime').value || null,
-                endDate: document.getElementById('eventEndDate').value || null,
-                description: document.getElementById('eventDescription').value,
-                groupId: document.getElementById('eventGroupId').value,
-                groupCapacity: document.getElementById('eventGroupCapacity').value,
-                sessionId: document.getElementById('eventSessionId').value,
-                accountId: document.getElementById('eventAccountId').value,
-                localId: document.getElementById('eventLocalId').value
+                title: document.getElementById('createEventTitle').value,
+                date: document.getElementById('createEventDate').value,
+                type: document.getElementById('createTypeSessionSelect').value,
+                room: document.getElementById('createEventRoom').value,
+                subject: document.getElementById('createEventSubject').value,
+                completionTags: Array.from(document.getElementById('createEventCompletionTag').selectedOptions).map(option => option.value),
+                duplicate: document.getElementById('createEventDuplicate').value,
+                startTime: document.getElementById('createEventStartTime').value || null,
+                endTime: document.getElementById('createEventEndTime').value || null,
+                endDate: document.getElementById('createEventEndDate').value || null,
+                description: document.getElementById('createEventDescription').value,
+                groupId: document.getElementById('createEventGroupId').value,
+                groupCapacity: document.getElementById('createEventGroupCapacity').value,
+                sessionId: document.getElementById('createEventSessionId').value,
+                accountId: document.getElementById('createEventAccountId').value,
+                localId: document.getElementById('createEventLocalId').value
             };
 
             console.log('Form Data:', formData);
@@ -1242,10 +1399,206 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('Response:', data);
                 if (data.success) {
                     alert('Event created successfully!');
-                    // Close modal
-                    const eventModal = bootstrap.Modal.getInstance(document.getElementById('eventModal'));
+                    const eventModal = bootstrap.Modal.getInstance(document.getElementById('createEventModal'));
                     eventModal.hide();
-                    // Reload calendar
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to create event');
+            });
+        });
+    }
+
+    // Handle save event button for VIEW modal
+    const viewSaveEventButton = document.getElementById('viewSaveEventButton');
+    if (viewSaveEventButton) {
+        viewSaveEventButton.addEventListener('click', function() {
+            const viewEventForm = document.getElementById('viewEventForm');
+
+            if (!viewEventForm.checkValidity()) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const formData = {
+                title: document.getElementById('viewEventTitle').value,
+                date: document.getElementById('viewEventDate').value,
+                type: document.getElementById('viewTypeSessionSelect').value,
+                room: document.getElementById('viewEventRoom').value,
+                subject: document.getElementById('viewEventSubject').value,
+                completionTags: Array.from(document.getElementById('viewEventCompletionTagCalander').selectedOptions).map(option => option.value),
+                duplicate: document.getElementById('viewEventDuplicate').value,
+                startTime: document.getElementById('viewEventStartTime').value || null,
+                endTime: document.getElementById('viewEventEndTime').value || null,
+                endDate: document.getElementById('viewEventEndDate').value || null,
+                description: document.getElementById('viewEventDescription').value,
+                groupId: document.getElementById('viewEventGroupId').value,
+                groupCapacity: document.getElementById('viewEventGroupCapacity').value,
+                sessionId: document.getElementById('viewEventSessionId').value,
+                accountId: document.getElementById('viewEventAccountId').value,
+                localId: document.getElementById('viewEventLocalId').value
+            };
+
+            console.log('View Form Data:', formData);
+
+            fetch('/api/update-event', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Response:', data);
+                if (data.success) {
+                    alert('Event updated successfully!');
+                    const viewEventModal = bootstrap.Modal.getInstance(document.getElementById('viewEventModal'));
+                    viewEventModal.hide();
+                    location.reload();
+                } else {
+                    alert('Error: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to update event');
+            });
+        });
+    }
+});
+
+
+
+
+/* =========================================*/
+/* =========== JS MODAL ADD GROUP TO CALENDAR =========== */
+/* =========================================*/
+
+// Initialize all custom selects - GLOBAL FUNCTION
+function initCustomSelects() {
+    document.querySelectorAll('.custom-select').forEach(selectEl => {
+        const selected = selectEl.querySelector('.selected');
+        const options = selectEl.querySelector('.options');
+
+        // Remove old event listeners to avoid duplicates
+        const newSelected = selected.cloneNode(true);
+        selected.parentNode.replaceChild(newSelected, selected);
+
+        // Toggle dropdown
+        newSelected.onclick = (e) => {
+            e.stopPropagation();
+            // Close other dropdowns
+            document.querySelectorAll('.custom-select').forEach(s => {
+                if (s !== selectEl) s.classList.remove('active');
+            });
+            selectEl.classList.toggle('active');
+        };
+
+        // Handle option selection
+        const updatedOptions = selectEl.querySelector('.options');
+        updatedOptions.querySelectorAll('div').forEach(opt => {
+            opt.onclick = (e) => {
+                e.stopPropagation();
+                const value = opt.getAttribute('data-value');
+                const text = opt.textContent;
+
+                const currentSelected = selectEl.querySelector('.selected');
+                currentSelected.textContent = text;
+                currentSelected.setAttribute('data-value', value);
+                selectEl.classList.remove('active');
+
+                // Trigger change event for duplicate field
+                if (selectEl.getAttribute('data-name') === 'createEventDuplicate') {
+                    handleDuplicateChange(value);
+                }
+            };
+        });
+    });
+}
+
+// Handle duplicate field show/hide - GLOBAL FUNCTION
+function handleDuplicateChange(value) {
+    const startTimeFields = document.getElementById('createStartTimeFields');
+    const endTimeFields = document.getElementById('createEndTimeFields');
+    const eventEndFields = document.getElementById('createEventEndFields');
+
+    if (value !== 'none' && value !== '') {
+        startTimeFields.style.display = 'block';
+        endTimeFields.style.display = 'block';
+        eventEndFields.style.display = 'block';
+    } else {
+        startTimeFields.style.display = 'none';
+        endTimeFields.style.display = 'none';
+        eventEndFields.style.display = 'none';
+    }
+}
+
+// Get value from custom select - GLOBAL FUNCTION
+function getCustomSelectValue(name) {
+    const select = document.querySelector(`.custom-select[data-name="${name}"]`);
+    if (select) {
+        return select.querySelector('.selected').getAttribute('data-value') || '';
+    }
+    return '';
+}
+
+// Initialize when modal opens
+document.addEventListener('DOMContentLoaded', function() {
+    const createModalElement = document.getElementById('createEventModal');
+    if (createModalElement) {
+        createModalElement.addEventListener('shown.bs.modal', function() {
+            initCustomSelects();
+        });
+    }
+
+    // Handle save button
+    const createSaveEventButton = document.getElementById('createSaveEventButton');
+    if (createSaveEventButton) {
+        createSaveEventButton.addEventListener('click', function() {
+            const formData = {
+                title: document.getElementById('createEventTitle').value,
+                date: document.getElementById('createEventDate').value,
+                type: getCustomSelectValue('createTypeSessionSelect'),
+                room: getCustomSelectValue('createEventRoom'),
+                subject: getCustomSelectValue('createEventSubject'),
+                completionTags: Array.from(document.getElementById('createEventCompletionTag').selectedOptions).map(option => option.value),
+                duplicate: getCustomSelectValue('createEventDuplicate'),
+                startTime: document.getElementById('createEventStartTime').value || null,
+                endTime: document.getElementById('createEventEndTime').value || null,
+                endDate: document.getElementById('createEventEndDate').value || null,
+                description: document.getElementById('createEventDescription').value,
+                groupId: document.getElementById('createEventGroupId').value,
+                groupCapacity: document.getElementById('createEventGroupCapacity').value,
+                sessionId: document.getElementById('createEventSessionId').value,
+                accountId: document.getElementById('createEventAccountId').value,
+                localId: document.getElementById('createEventLocalId').value
+            };
+
+            console.log('Form Data:', formData);
+
+            // Validate
+            if (!formData.title || !formData.date || !formData.type || !formData.room || !formData.subject) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            // Send to backend
+            fetch('/api/create-event', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Event created successfully!');
+                    const eventModal = bootstrap.Modal.getInstance(document.getElementById('createEventModal'));
+                    eventModal.hide();
                     location.reload();
                 } else {
                     alert('Error: ' + data.message);

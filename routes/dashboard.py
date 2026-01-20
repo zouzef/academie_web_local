@@ -6,12 +6,21 @@ dashboard_bp = Blueprint('dashboard', __name__)
 
 
 # ==========================================
+# VARIABLE
+# ==========================================
+
+BASE_URL = "https://172.28.20.105:5004/scl/"
+
+
+
+
+# ==========================================
 # HELPER FUNCTIONS - API CALLS TO SLC
 # ==========================================
 
 # function to get list student of the calendar
 def get_list_student(calendar_id):
-	url = f"https://172.28.20.5:5004/scl/list-add-student-attendance/{calendar_id}"
+	url = f"{BASE_URL}list-add-student-attendance/{calendar_id}"
 	try:
 		response = requests.get(url, verify=False)
 		response.raise_for_status()
@@ -30,7 +39,7 @@ def get_list_student(calendar_id):
 
 # function to get the detail of the calendar
 def detail_calender_by_id(calender_id):
-	url=f"https://172.28.20.5:5004/scl/get_calander_id/{calender_id}"
+	url=f"{BASE_URL}get_calander_id/{calender_id}"
 	try:
 		response = requests.get(url,verify=False)
 		response.raise_for_status()
@@ -45,7 +54,7 @@ def detail_calender_by_id(calender_id):
 
 # function to get the attendance of the calendar
 def attendance_by_id(calendar_id):
-	url = f"https://172.28.20.5:5004/scl/get-attendance/{calendar_id}"
+	url = f"{BASE_URL}scl/get-attendance/{calendar_id}"
 	try:
 		response = requests.get(url,verify=False)
 		response.raise_for_status()
@@ -63,7 +72,7 @@ def attendance_by_id(calendar_id):
 
 def get_calander_per_session(account_id, session_id):
 	"""Get calendar data for a specific session from SLC API"""
-	url = f"https://172.28.20.5:5004/scl/get_calendar_session/{session_id}/{account_id}"
+	url = f"{BASE_URL}get_calendar_session/{session_id}/{account_id}"
 	try:
 		response = requests.get(url, verify=False)
 		response.raise_for_status()
@@ -78,10 +87,10 @@ def get_calander_per_session(account_id, session_id):
 		print(f"DEBUG: Error {e} from the local server !!")
 		return []
 
-
+# Function to get local
 def get_local(account_id):
 	"""Get local details from SLC API"""
-	url = f"https://172.28.20.5:5004/scl/get_local_detail/{account_id}"
+	url = f"{BASE_URL}get_local_detail/{account_id}"
 	try:
 		response = requests.get(url, verify=False)
 		response.raise_for_status()
@@ -96,10 +105,44 @@ def get_local(account_id):
 		print(f"DEBUG: Error {e}")
 		return []
 
+# Function to get Room from local
+@dashboard_bp.route("/api/get_room/<int:local_id>")
+def get_room(local_id):
+	url = f"{BASE_URL}/get_room/{local_id}"
+	try:
+		response = requests.get(url,verify=False)
+		response.raise_for_status()
+		if response.status_code == 200:
+			data = response.json()
+			room = data.get("data",[])
+			return jsonify({"Message": "Success", "Room": room})
+	except Exception as e:
+		print(f"Error {e} coming from get_ room")
+		return jsonify({"Message":f"Error {e}"}),500
+
+# Function to get Teacher from session
+@dashboard_bp.route("/api/get_teacher/<int:session_id>")
+def get_teacher(session_id):
+	url = f"{BASE_URL}/get_teacher/{session_id}"
+	try:
+		response = requests.get(url,verify=False)
+		response.raise_for_status()
+		if response.status_code==200:
+			data = response.json()
+			teacher = data.get("data",[])
+			return jsonify({"Message":"Success","teacher":teacher}),200
+		else:
+			return jsonify({"Message": "there is no teacher","Teacher":[]}),404
+
+	except Exception as e:
+		print(f"Error {e}")
+		return jsonify({"message":f"Error {e} coming from get teacher"}),500
+
+
 
 def get_session_slc(account_id):
 	"""Get all sessions from SLC API"""
-	url = f"https://172.28.20.5:5004/scl/get_session_detail/{account_id}"
+	url = f"{BASE_URL}get_session_detail/{account_id}"
 	try:
 		response = requests.get(url, verify=False, timeout=10)
 		if response.status_code == 200:
@@ -116,7 +159,7 @@ def get_session_slc(account_id):
 
 def get_data_moderateur(account_id):
 	"""Get moderator data from SLC API"""
-	url = f"https://172.28.20.5:5004/scl/get_data_moderateur/{account_id}"
+	url = f"{BASE_URL}get_data_moderateur/{account_id}"
 	try:
 		response = requests.get(url, verify=False, timeout=10)
 		response.raise_for_status()
@@ -228,7 +271,7 @@ def show_session_config(id_session):
 # api get group
 @dashboard_bp.route('/api/get-group/<int:session_id>/<int:account_id>')
 def get_group_api(session_id,account_id):
-	url = f"https://172.28.20.5:5004/scl/get-group/{account_id}/{session_id}"
+	url = f"{BASE_URL}get-group/{account_id}/{session_id}"
 	try:
 		response = requests.get(url,verify=False)
 		response.raise_for_status()
@@ -331,7 +374,7 @@ def show_attendance_presence(id_calander):
 # Change Status endpoint
 @dashboard_bp.route("/api/change-status/<int:status>/<int:attendance_id>")
 def update_attendance(status, attendance_id):
-	url = f"https://172.28.20.5:5004/scl/update-attendance-student/{attendance_id}"
+	url = f"{BASE_URL}update-attendance-student/{attendance_id}"
 	try:
 		is_present = status == 1
 		payload = {
@@ -377,7 +420,7 @@ def update_attendance(status, attendance_id):
 # Change Note EndPoint
 @dashboard_bp.route("/api/change-note/<int:attendance_id>", methods=['POST'])
 def update_note(attendance_id):
-	url = f"https://172.28.20.5:5004/scl/update-attendance-note/{attendance_id}"
+	url = f"{BASE_URL}update-attendance-note/{attendance_id}"
 
 	try:
 		# Get the note from the request body
@@ -430,7 +473,7 @@ def update_note(attendance_id):
 # api to reset attendance
 @dashboard_bp.route("/api/reset-attendance/<int:calander_id>",methods=["post"])
 def reset_attendance(calander_id):
-	url = f"https://172.28.20.5:5004/scl/reset_attendance/{calander_id}"
+	url = f"{BASE_URL}reset_attendance/{calander_id}"
 	try:
 		response = requests.get(url,verify=False)
 		response.raise_for_status()
@@ -448,7 +491,7 @@ def reset_attendance(calander_id):
 #api to get statistic
 @dashboard_bp.route("/api/get-statistic/<int:calander_id>",methods=["GET"])
 def get_calender_statistic(calander_id):
-	url =f"https://172.28.20.5:5004/scl/attendance-statistics/{calander_id}"
+	url =f"{BASE_URL}attendance-statistics/{calander_id}"
 	try:
 		response = requests.get(url,verify=False)
 		response.raise_for_status()

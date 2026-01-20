@@ -31163,3 +31163,92 @@ tbody tr:hover td:first-child {
     opacity: 1;
 }
 
+
+
+
+/* Style for modal select dropdowns */
+.modal select.form-control {
+    display: block !important;
+    width: 100% !important;
+    padding: 0.6875rem 1.25rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    line-height: 1.5 !important;
+    color: #A098AE !important;
+    background-color: rgba(0, 0, 0, 0) !important;
+    background-clip: padding-box !important;
+    border: 1px solid rgb(215, 215, 219) !important;
+    border-radius: 0.625rem !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    -moz-appearance: none !important;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out !important;
+    height: 3rem !important;
+}
+
+
+
+
+/* Add custom dropdown arrow */
+.custom-select {
+    position: relative;
+    width: 100%;
+    cursor: pointer;
+}
+
+.custom-select .selected {
+    padding: 0.6875rem 1.25rem;
+    border: 1px solid rgb(215, 215, 219);
+    border-radius: 0.625rem;
+    color: #A098AE;
+    font-size: 0.875rem;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+.custom-select .selected::after {
+    content: '▼';
+    font-size: 0.75rem;
+    margin-left: auto;
+}
+
+.custom-select .options {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #f2f2f2;
+    border-radius: 0.625rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-top: 0.25rem;
+    max-height: 250px;
+    overflow-y: auto;
+    z-index: 1000;
+}
+
+.custom-select .options div {
+    padding: 0.6875rem 1.25rem;
+    color: #303972;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.custom-select .options div:hover {
+    background-color: #E6EBEE;
+}
+
+.custom-select .options div:first-child {
+    color: #A098AE;
+}
+
+
+
+.custom-select.active .options {
+    display: block;
+}

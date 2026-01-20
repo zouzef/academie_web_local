@@ -3,6 +3,7 @@
         <div id="calendar-info"
              data-session-id="12"
              data-account-id="3"
+             data-local-id="8"
              style="display: none;">
         </div>
         <!-- row -->
@@ -35,34 +36,9 @@
                         <div class="">
                             <div id="external-events" class="my-3">
                                 <p>Drag and drop your event or click in the calendar</p>
-
-<!--                                <div class="external-event btn-primary light" data-class="bg-primary">-->
-<!--                                    <i class="fa fa-move"></i>-->
-<!--                                    <span>New Theme Release</span>-->
-<!--                                </div>-->
-<!--                                <div class="external-event btn-warning light" data-class="bg-warning">-->
-<!--                                    <i class="fa fa-move"></i>-->
-<!--                                    My Event-->
-<!--                                </div>-->
-<!--                                <div class="external-event btn-danger light" data-class="bg-danger">-->
-<!--                                    <i class="fa fa-move"></i>-->
-<!--                                    Meet manager-->
-<!--                                </div>-->
-<!--                                <div class="external-event btn-info light" data-class="bg-info">-->
-<!--                                    <i class="fa fa-move"></i>-->
-<!--                                    Create New theme-->
-<!--                                </div>-->
-<!--                                <div class="external-event btn-dark light" data-class="bg-dark">-->
-<!--                                    <i class="fa fa-move"></i>-->
-<!--                                    Project Launch-->
-<!--                                </div>-->
-<!--                                <div class="external-event btn-secondary light" data-class="bg-secondary">-->
-<!--                                    <i class="fa fa-move"></i>-->
-<!--                                    Meeting-->
-<!--                                </div>-->
                                     <div id="my-custom-events" class="my-3"></div>
                             </div>
-                            <!-- checkbox -->
+
 
 
                         </div>
@@ -143,58 +119,67 @@
         </div>
     </div>
 </div>
-
-
-
-<!-- ADD THIS MODAL TO YOUR HTML (before closing </div> of container) -->
-
-<!-- ADD THIS MODAL TO YOUR HTML (before closing </div> of container) -->
-<div class="modal fade" id="eventModal" tabindex="-1" aria-labelledby="eventModalLabel" aria-hidden="true">
+<!-- CREATE EVENT MODAL -->
+<div class="modal fade" id="createEventModal" tabindex="-1" aria-labelledby="createEventModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="eventModalLabel">Create Event</h5>
+                <h5 class="modal-title" id="createEventModalLabel">Create Event</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <form id="eventForm">
+                <form id="createEventForm">
                     <div class="mb-3">
-                        <label for="eventTitle" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="eventTitle" required>
+                        <label for="createEventTitle" class="form-label">Title</label>
+                        <input type="text" class="form-control" id="createEventTitle" required>
                     </div>
                     <div class="mb-3">
-                        <label for="eventDate" class="form-label">Start Date</label>
-                        <input type="date" class="form-control" id="eventDate" required>
+                        <label for="createEventDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="createEventDate" required>
                     </div>
+
+                    <!-- Type Select -->
                     <div class="mb-3">
-                        <label for="typeSessionSelect" class="form-label">Type</label>
-                        <select class="form-control" id="typeSessionSelect" required>
-                            <option value="">Select Type</option>
-                            <option value="P">Presence (P)</option>
-                            <option value="O">Online (O)</option>
-                        </select>
+                        <label class="form-label">Type</label>
+                        <div class="custom-select" data-name="createTypeSessionSelect">
+                            <div class="selected" data-value="">Select Type</div>
+                            <div class="options">
+                                <div data-value="">Select Type</div>
+                                <div data-value="P">Presence (P)</div>
+                                <div data-value="O">Online (O)</div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Room Select -->
                     <div class="mb-3">
-                        <label for="eventRoom" class="form-label">Room</label>
-                        <select class="form-control" id="eventRoom" required>
-                            <option value="">Select a Room</option>
-                            <option value="7">class khalil</option>
-                            <option value="8">class haythm</option>
-                            <option value="9">classe test</option>
-                            <option value="10">classe kasmi</option>
-                        </select>
+                        <label class="form-label">Room</label>
+                        <div class="custom-select" data-name="createEventRoom">
+                            <div class="selected" data-value="">Select a Room</div>
+                            <div class="options">
+                                <div data-value="">Select a Room</div>
+
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Subject Select -->
                     <div class="mb-3">
-                        <label for="eventSubject" class="form-label">Teacher And Subject</label>
-                        <select class="form-control" id="eventSubject" required>
-                            <option value="">Select a Subject and Teacher</option>
-                            <option value="69" data-subject="1" data-user="374">Subject : Math - Teacher : youssef kasmi</option>
-                            <option value="79" data-subject="1" data-user="4">Subject : Math - Teacher : Mkaissi khalil</option>
-                        </select>
+                        <label class="form-label">Teacher And Subject</label>
+                        <div class="custom-select" data-name="createEventSubject">
+                            <div class="selected" data-value="">Select a Subject and Teacher</div>
+                            <div class="options">
+                                <div data-value="">Select a Subject and Teacher</div>
+                                <div data-value="69" data-subject="1" data-user="374">Subject : Math - Teacher : youssef kasmi</div>
+                                <div data-value="79" data-subject="1" data-user="4">Subject : Math - Teacher : Mkaissi khalil</div>
+                            </div>
+                        </div>
                     </div>
+
+                    <!-- Completion Tag (keep as multiple select) -->
                     <div class="mb-3">
-                        <label for="eventCompletionTagCalander" class="form-label">Completion Tag</label>
-                        <select class="form-control" id="eventCompletionTagCalander" multiple required>
+                        <label for="createEventCompletionTag" class="form-label">Completion Tag</label>
+                        <select class="form-control" id="createEventCompletionTag" multiple required>
                             <option value="1">Bronze</option>
                             <option value="2">Silver</option>
                             <option value="3">Gold</option>
@@ -206,44 +191,50 @@
                             <option value="10">fonction 1</option>
                         </select>
                     </div>
+
+                    <!-- Duplicate Select -->
                     <div class="mb-3">
-                        <label for="eventDuplicate" class="form-label">Duplicate</label>
-                        <select class="form-control" id="eventDuplicate" required>
-                            <option value="">Select an Option</option>
-                            <option value="none">Not Duplicate</option>
-                            <option value="daily">Per Day</option>
-                            <option value="weekly">Per Week</option>
-                            <option value="biweekly">Every 2 Weeks</option>
-                        </select>
-                    </div>
-                    <div class="mb-3" id="startTimeFields" style="display: none;">
-                        <label for="eventStartTime" class="form-label">Start Time</label>
-                        <input type="time" class="form-control" id="eventStartTime">
-                    </div>
-                    <div class="mb-3" id="endTimeFields" style="display: none;">
-                        <label for="eventEndTime" class="form-label">End Time</label>
-                        <input type="time" class="form-control" id="eventEndTime">
-                    </div>
-                    <div class="mb-3" id="eventEndFields" style="display: none;">
-                        <label for="eventEndDate" class="form-label">End Date</label>
-                        <input type="date" class="form-control" id="eventEndDate">
-                    </div>
-                    <div class="mb-3">
-                        <label for="eventDescription" class="form-label">Description</label>
-                        <textarea class="form-control" id="eventDescription" rows="3"></textarea>
+                        <label class="form-label">Duplicate</label>
+                        <div class="custom-select" data-name="createEventDuplicate">
+                            <div class="selected" data-value="">Select an Option</div>
+                            <div class="options">
+                                <div data-value="">Select an Option</div>
+                                <div data-value="none">Not Duplicate</div>
+                                <div data-value="daily">Per Day</div>
+                                <div data-value="weekly">Per Week</div>
+                                <div data-value="biweekly">Every 2 Weeks</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <!-- Hidden fields to store dropped group info -->
-                    <input type="hidden" id="eventGroupId">
-                    <input type="hidden" id="eventGroupCapacity">
-                    <input type="hidden" id="eventSessionId">
-                    <input type="hidden" id="eventAccountId">
-                    <input type="hidden" id="eventLocalId">
+                    <div class="mb-3" id="createStartTimeFields" style="display: none;">
+                        <label for="createEventStartTime" class="form-label">Start Time</label>
+                        <input type="time" class="form-control" id="createEventStartTime">
+                    </div>
+                    <div class="mb-3" id="createEndTimeFields" style="display: none;">
+                        <label for="createEventEndTime" class="form-label">End Time</label>
+                        <input type="time" class="form-control" id="createEventEndTime">
+                    </div>
+                    <div class="mb-3" id="createEventEndFields" style="display: none;">
+                        <label for="createEventEndDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="createEventEndDate">
+                    </div>
+                    <div class="mb-3">
+                        <label for="createEventDescription" class="form-label">Description</label>
+                        <textarea class="form-control" id="createEventDescription" rows="3"></textarea>
+                    </div>
+
+                    <!-- Hidden fields -->
+                    <input type="hidden" id="createEventGroupId">
+                    <input type="hidden" id="createEventGroupCapacity">
+                    <input type="hidden" id="createEventSessionId">
+                    <input type="hidden" id="createEventAccountId">
+                    <input type="hidden" id="createEventLocalId">
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                <button type="button" class="btn btn-primary" id="saveEventButton">Save</button>
+                <button type="button" class="btn btn-primary" id="createSaveEventButton">Save</button>
             </div>
         </div>
     </div>
