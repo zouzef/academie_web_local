@@ -115,6 +115,16 @@
 			{% include 'components/attendance_page.html' %}
 
 		{% elif page == 'group_user_session' %}
+			<script>
+				window.addEventListener('load', function() {
+					const accountId  = {{ account_id }};
+					const sessionId = {{ id_session }};
+					if (typeof loadGroupsToGroupConfig === 'function') {
+						loadGroupsToGroupConfig(accountId, sessionId);
+					}
+					loadUsersNotAffected(sessionId, accountId);
+				});
+			</script>
 			{% include 'components/group_config.html' %}
 
 		{% elif page == 'session_calander'%}

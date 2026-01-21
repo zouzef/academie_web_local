@@ -52,9 +52,67 @@ def detail_calender_by_id(calender_id):
 		return []
 
 
+# api to delete calander
+@dashboard_bp.route('/api/delete-calander/<int:session_id>', methods=['DELETE', 'POST'])
+def delete_calander(session_id):
+	url = f"{BASE_URL}deleting_interval/{session_id}"
+	try:
+		data = request.json
+
+		if not data:
+			return jsonify({"message": "No data provided"}), 400
+
+		start_date = data.get('start_date')
+		end_date = data.get('end_date')
+		print(f"Received - Start Date: {start_date}, End Date: {end_date}")
+
+		if not start_date or not end_date:
+			return jsonify({"message": "Error: missing start_date or end_date"}), 400
+
+		from datetime import datetime
+		try:
+
+			datetime.strptime(start_date, '%Y-%m-%d')
+			datetime.strptime(end_date, '%Y-%m-%d')
+			start_date_with_time = f"{start_date} 00:00:00"
+			end_date_with_time = f"{end_date} 23:59:59"
+
+		except ValueError:
+			return jsonify({"message": "Invalid date format. Use YYYY-MM-DD"}), 400
+		response = requests.post(url, json={
+			'start_date': start_date_with_time,
+			'end_date': end_date_with_time
+		},
+		verify=False)
+		if response.status_code == 200:
+			return jsonify({
+				"message": "Calendar interval deleted successfully",
+				"start_date": start_date,
+				"end_date": end_date
+			}), 200
+		else:
+			return jsonify({
+				"message": "Failed to delete interval from external API",
+				"error": response.text,
+				"status_code": response.status_code
+			}), 400
+	except requests.exceptions.RequestException as e:
+		return jsonify({"message": "Error connecting to external server", "error": str(e)}), 500
+	except Exception as e:
+		import traceback
+		traceback.print_exc()
+		return jsonify({"message": "Internal server error", "error": str(e)}), 500
+
+
+
+
+
+
+
+
 # function to get the attendance of the calendar
 def attendance_by_id(calendar_id):
-	url = f"{BASE_URL}scl/get-attendance/{calendar_id}"
+	url = f"{BASE_URL}get-attendance/{calendar_id}"
 	try:
 		response = requests.get(url,verify=False)
 		response.raise_for_status()
@@ -123,7 +181,7 @@ def get_room(local_id):
 # Function to get Teacher from session
 @dashboard_bp.route("/api/get_teacher/<int:session_id>")
 def get_teacher(session_id):
-	url = f"{BASE_URL}/get_teacher/{session_id}"
+	url = f"{BASE_URL}get_teacher/{session_id}"
 	try:
 		response = requests.get(url,verify=False)
 		response.raise_for_status()
@@ -274,6 +332,7 @@ def get_group_api(session_id,account_id):
 	url = f"{BASE_URL}get-group/{account_id}/{session_id}"
 	try:
 		response = requests.get(url,verify=False)
+		print(response)
 		response.raise_for_status()
 		if response.status_code ==200:
 			data = response.json()
@@ -299,6 +358,62 @@ def show_create_session_calendar(id_session):
 						   page='session_calander')
 
 
+# =================== user not affected =======================
+@dashboard_bp.route('/api/show_user_not_affected/<int:session_id>/<int:account_id>')
+def show_user_not_affected(session_id, account_id):
+	url = f"{BASE_URL}user_not_affected/{session_id}/{account_id}"
+	try:
+
+		response = requests.get(url, verify=False)
+		response.raise_for_status()
+		if response.status_code == 200:
+			data = response.json()
+			user_not_affected = data.get("students", [])  # Changed from "data" to "students"
+			return jsonify({"Message": "Success", "students": user_not_affected}), 200
+		else:
+			return jsonify({"Message": "Error", "students": []}), 400
+	except Exception as e:
+		print(f"Error: {e}")
+		return jsonify({"Message": "Error coming from server", "students": []}), 500
+
+
+@dashboard_bp.route('/api/affect_user/<int:session_id>', methods=["POST"])  # Changed to POST
+def affect_user(session_id):
+	url = f"{BASE_URL}affect_user_group/{session_id}"
+	try:
+		data = request.get_json()  # Changed from request.json()
+
+		if not data:
+			return jsonify({"Message": "No data provided"}), 400
+
+		if not data.get("user_id") or not data.get("group_id"):
+			return jsonify({"Message": "Missing user_id or group_id"}), 400
+
+		payload = {
+			"user_id": data.get("user_id"),
+			"group_id": data.get("group_id")
+		}
+
+		# Changed to requests.post() and json= parameter
+		response = requests.post(url, json=payload, verify=False)
+		response.raise_for_status()
+
+		if response.status_code == 200:
+			result = response.json()
+			return jsonify({"Message": "Success", "data": result}), 200
+		else:
+			return jsonify({"Message": "Failed to affect student"}), 400
+
+	except requests.exceptions.RequestException as e:
+		print(f"Request error {e}")
+		return jsonify({"Message": f"Request error: {e}"}), 500
+
+	except Exception as e:
+		print(f"Error {e} coming from server")
+		return jsonify({"Message": f"Error: {e}"}), 500
+
+
+
 # ==========================================
 # GROUP MANAGEMENT ROUTES
 # ==========================================
@@ -309,9 +424,14 @@ def show_create_group_session(id_session):
 	if 'moderator_id' not in session:
 		return redirect(url_for('auth.login'))
 
+	# Get account_id AFTER checking login (moved this line down)
+	account_id = session.get('account_id', 3)  # 3 is default if not found
+
 	return render_template('index.html',
 						   id_session=id_session,
+						   account_id=account_id,  # Now pass it to template
 						   page='group_user_session')
+
 
 
 # ==========================================
@@ -341,6 +461,7 @@ def show_attendance_presence(id_calander):
 
 	calender_detail = detail_calender_by_id(id_calander)
 	attendance = attendance_by_id(id_calander)
+	print(attendance)
 	list_student = get_list_student(id_calander)
 
 	# Parse datetime strings if they exist

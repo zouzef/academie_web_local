@@ -1166,22 +1166,20 @@ function loadGroupsToExternalEvents(accountId, sessionId) {
     });
 }
 
+
 // Call it when page loads - get accountId and sessionId from data attributes
 document.addEventListener('DOMContentLoaded', function() {
     // Get data from the calendar-info div
     const calendarInfo = document.getElementById('calendar-info');
-
     if (calendarInfo) {
-        const sessionId = parseInt(calendarInfo.getAttribute('data-session-id'));
-        const accountId = parseInt(calendarInfo.getAttribute('data-account-id'));
+        const local_id = parseInt(calendarInfo.getAttribute('data-local-id'));
+        console.log('Loading rooms for local:', local_id);
+        load_room(local_id);
+        loadGroupsToExternalEvents(3,12)
 
-        console.log('Loading groups for Session:', sessionId, 'Account:', accountId);
-        loadGroupsToExternalEvents(accountId, sessionId);
-    } else {
-        console.error('calendar-info element not found');
     }
+    // Removed the error log - this is normal on non-calendar pages
 });
-
 
 
 /*==========================================*/
@@ -1611,3 +1609,354 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
+
+
+
+// Handle delete interval confirmation
+document.addEventListener('DOMContentLoaded', function() {
+    const confirmDeleteBtn = document.getElementById('confirmDeleteInterval');
+
+    if (confirmDeleteBtn) {
+        confirmDeleteBtn.addEventListener('click', async function() {
+            const sessionId = document.getElementById('sessionId').value;
+            const startDate = document.getElementById('deleteTargetStartDate').value;
+            const endDate = document.getElementById('deleteTargetEndDate').value;
+
+            console.log('Session ID:', sessionId);
+            console.log('Start Date:', startDate);
+            console.log('End Date:', endDate);
+
+            // Validate inputs
+            if (!startDate || !endDate) {
+                alert('Please select both start and end dates');
+                return;
+            }
+
+            // Validate that end date is after start date
+            if (new Date(endDate) < new Date(startDate)) {
+                alert('End date must be after start date');
+                return;
+            }
+
+            try {
+                // Disable button to prevent double clicks
+                const deleteBtn = document.getElementById('confirmDeleteInterval');
+                deleteBtn.disabled = true;
+                deleteBtn.textContent = 'Deleting...';
+
+                const response = await fetch(`/api/delete-calander/${sessionId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        start_date: startDate,
+                        end_date: endDate
+                    })
+                });
+
+                console.log('Response status:', response.status);
+                console.log('Response ok:', response.ok);
+
+                const result = await response.json();
+                console.log('Response data:', result);
+
+                if (response.ok) {
+                    alert('Calendar interval deleted successfully!');
+
+                    // Close the modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('deleteIntervalModal'));
+                    modal.hide();
+
+                    // Reset form
+                    document.getElementById('deleteTargetStartDate').value = '';
+                    document.getElementById('deleteTargetEndDate').value = '';
+
+                    // Optionally reload the page or update the calendar view
+                    location.reload();
+
+                } else {
+                    console.error('Server error:', result);
+                    alert(`Error: ${result.message || 'Failed to delete interval'}`);
+                }
+
+            } catch (error) {
+                console.error('Fetch error details:', error);
+                alert('An error occurred while deleting the interval. Check console for details.');
+            } finally {
+                // Re-enable button
+                const deleteBtn = document.getElementById('confirmDeleteInterval');
+                deleteBtn.disabled = false;
+                deleteBtn.textContent = 'Delete';
+            }
+        });
+    }
+});
+
+
+
+//######################### java script of group ############################
+
+
+async function loadGroupsToGroupConfig(accountId, sessionId) {
+    const container = document.getElementById('group-container');
+
+    // Check if container exists (only on group page)
+    if (!container) {
+        return;
+    }
+
+    try {
+        // Fetch groups from your API endpoint
+        const response = await fetch(`/api/get-group/${sessionId}/${accountId}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Print the result to console
+        console.log('API Response:', result);
+
+        // Clear the container first
+        container.innerHTML = '';
+
+        // Print the groups data
+        if (result.Message === "Success" && result.data && result.data.length > 0) {
+            console.log('Groups:', result.data);
+            console.log('Number of groups:', result.data.length);
+
+            // Render each group
+            result.data.forEach((group, index) => {
+                console.log(`Group ${index + 1}:`, group);
+
+                // Create group card HTML
+                const groupCard = createGroupCard(group);
+                container.innerHTML += groupCard;
+            });
+
+            console.log('Groups rendered successfully!');
+        } else {
+            container.innerHTML = '<div class="col-12 text-center py-5"><p>No groups found.</p></div>';
+            console.log('No groups found or error occurred');
+        }
+
+    } catch (error) {
+        console.error('Error loading groups:', error);
+        container.innerHTML = '<div class="col-12 text-center py-5"><p class="text-danger">Error loading groups.</p></div>';
+    }
+}
+
+// Function to create group card HTML
+function createGroupCard(group) {
+    return `
+        <div class="col-xl-4 col-xxl-4">
+            <div class="card contact_list text-center">
+                <div class="card-body">
+                    <div class="user-content-session" data-group-id="${group.id}">
+                        <div class="user-info">
+                            <div class="user-details">
+                                <h4 class="user-name mb-0">${group.name}</h4>
+                                <p>Capacity: ${group.capacity}</p>
+                            </div>
+                        </div>
+                        <div class="dropdown">
+                            <a href="javascript:void(0);" class="btn sharp btn-light" data-bs-toggle="dropdown" aria-expanded="false">
+                                <svg width="24" height="6" viewBox="0 0 24 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12.0012 0.359985C11.6543 0.359985 11.3109 0.428302 10.9904 0.561035C10.67 0.693767 10.3788 0.888317 10.1335 1.13358C9.88829 1.37883 9.69374 1.67 9.56101 1.99044C9.42828 2.31089 9.35996 2.65434 9.35996 3.00119C9.35996 3.34803 9.42828 3.69148 9.56101 4.01193C9.69374 4.33237 9.88829 4.62354 10.1335 4.8688C10.3788 5.11405 10.67 5.3086 10.9904 5.44134C11.3109 5.57407 11.6543 5.64239 12.0012 5.64239C12.7017 5.64223 13.3734 5.36381 13.8686 4.86837C14.3638 4.37294 14.6419 3.70108 14.6418 3.00059C14.6416 2.3001 14.3632 1.62836 13.8677 1.13315C13.3723 0.637942 12.7004 0.359826 12 0.359985H12.0012ZM3.60116 0.359985C3.25431 0.359985 2.91086 0.428302 2.59042 0.561035C2.26997 0.693767 1.97881 0.888317 1.73355 1.13358C1.48829 1.37883 1.29374 1.67 1.16101 1.99044C1.02828 2.31089 0.959961 2.65434 0.959961 3.00119C0.959961 3.34803 1.02828 3.69148 1.16101 4.01193C1.29374 4.33237 1.48829 4.62354 1.73355 4.8688C1.97881 5.11405 2.26997 5.3086 2.59042 5.44134C2.91086 5.57407 3.25431 5.64239 3.60116 5.64239C4.30165 5.64223 4.97339 5.36381 5.4686 4.86837C5.9638 4.37294 6.24192 3.70108 6.24176 3.00059C6.2416 2.3001 5.96318 1.62836 5.46775 1.13315C4.97231 0.637942 4.30045 0.359826 3.59996 0.359985H3.60116ZM20.4012 0.359985C20.0543 0.359985 19.7109 0.428302 19.3904 0.561035C19.07 0.693767 18.7788 0.888317 18.5336 1.13358C18.2883 1.37883 18.0937 1.67 17.961 1.99044C17.8283 2.31089 17.76 2.65434 17.76 3.00119C17.76 3.34803 17.8283 3.69148 17.961 4.01193C18.0937 4.33237 18.2883 4.62354 18.5336 4.8688C18.7788 5.11405 19.07 5.3086 19.3904 5.44134C19.7109 5.57407 20.0543 5.64239 20.4012 5.64239C21.1017 5.64223 21.7734 5.36381 22.2686 4.86837C22.7638 4.37294 23.0419 3.70108 23.0418 3.00059C23.0416 2.3001 22.7632 1.62836 22.2677 1.13315C21.7723 0.637942 21.1005 0.359826 20.4 0.359985H20.4012Z" fill="#A098AE"></path>
+                                </svg>
+                            </a>
+                            <div class="dropdown-menu dropdown-menu-end">
+                                <a class="dropdown-item delete-group" href="javascript:void(0);" data-id="${group.id}">Delete</a>
+                                <a class="dropdown-item edit-group" href="javascript:void(0);" data-id="${group.id}" data-name="${group.name}" data-capacity="${group.capacity}" data-bs-toggle="modal" data-bs-target="#groupUpdateModal">Edit</a>
+                                <a class="dropdown-item show-student" href="javascript:void(0);" data-id="${group.id}" data-name="${group.name}" data-capacity="${group.capacity}" data-bs-toggle="modal" data-bs-target="#groupShowStudentModal">Show students</a>
+                            </div>
+                        </div>
+                        <div class="droppable-area-session ui-droppable" style="max-height: 250px !important; overflow-y: auto;" data-group-id="${group.id}" data-capacity="${group.capacity}">
+                            <!-- Students will be loaded here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+
+
+//===========================================================
+//========== FUNCTION TO LOAD STUDENT NOT AFFECTED ==========
+//===========================================================
+async function loadUsersNotAffected(sessionId, accountId) {
+    const container = document.getElementById('external-events');
+
+    // Check if container exists
+    if (!container) {
+        console.log('external-events container not found');
+        return;
+    }
+
+    try {
+
+        // Fetch users not affected from API (now with accountId)
+        const response = await fetch(`/api/show_user_not_affected/${sessionId}/${accountId}`);
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const result = await response.json();
+
+        // Print the result to console
+        console.log('API Response:', result);
+
+        // Remove existing user elements (keep title and search box)
+        const existingUsers = container.querySelectorAll('.external-event-session');
+        existingUsers.forEach(user => user.remove());
+
+        // Render users (changed from result.data to result.students)
+        if (result.Message === "Success" && result.students && result.students.length > 0) {
+            console.log('Users not affected:', result.students);
+            console.log('Number of users:', result.students.length);
+
+            // Render each user
+            result.students.forEach((user, index) => {
+                console.log(`User ${index + 1}:`, user);
+
+                const userElement = createUserElement(user, sessionId);
+                container.appendChild(userElement);
+            });
+
+            // Re-initialize drag and drop after elements are added
+            initializeDragAndDrop();
+
+            console.log('Users rendered successfully!');
+        } else {
+            // No users found
+            const noUsersDiv = document.createElement('div');
+            noUsersDiv.className = 'text-center py-3';
+            noUsersDiv.innerHTML = '<p class="text-muted">No users without groups found.</p>';
+            container.appendChild(noUsersDiv);
+            console.log('No users found');
+        }
+
+    } catch (error) {
+        console.error('Error loading users:', error);
+    }
+}
+
+// Function to create user element (updated to use new field names)
+function createUserElement(user, sessionId) {
+    const userDiv = document.createElement('div');
+    userDiv.className = 'external-event-session btn btn-primary light';
+    userDiv.setAttribute('data-id', user.userId);  // Changed from user.user_id
+    userDiv.setAttribute('data-user-id', user.userId);  // Changed from user.user_id
+    userDiv.setAttribute('data-count', user.sessionCount);  // Changed from user.count
+    userDiv.setAttribute('data-session-id', sessionId);
+
+    userDiv.innerHTML = `
+        <i class="fa fa-move"></i>
+        <span class="user-name">
+            ${user.userName}
+        </span>
+        <small class="badge bg-warning ms-1 session-count">
+            ${user.sessionCount}
+        </small>
+    `;
+
+    return userDiv;
+}
+
+
+
+// Function to assign user to group via API
+async function assignUserToGroup(userId, groupId, sessionId) {
+    try {
+        const response = await fetch(`/api/affect_user/${sessionId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                user_id: userId,
+                group_id: groupId
+            })
+        });
+
+        const result = await response.json();
+
+        if (response.ok && result.Message === "Success") {
+            console.log('User assigned successfully:', result);
+            return { success: true, data: result };
+        } else {
+            console.error('Failed to assign user:', result.Message);
+            return { success: false, message: result.Message };
+        }
+    } catch (error) {
+        console.error('Error assigning user to group:', error);
+        return { success: false, message: error.message };
+    }
+}
+
+
+
+// Function to initialize drag and drop (no changes needed)
+function initializeDragAndDrop() {
+    if (typeof jQuery !== 'undefined' && jQuery.fn.draggable) {
+        // Make user items draggable
+        jQuery('.external-event-session').draggable({
+            revert: 'invalid',
+            helper: 'clone',
+            cursor: 'move',
+            zIndex: 999
+        });
+
+        // Make group drop areas droppable
+        jQuery('.droppable-area-session').droppable({
+            accept: '.external-event-session',
+            drop: async function(event, ui) {
+                const userElement = ui.draggable;
+                const groupId = jQuery(this).data('group-id');
+                const userId = userElement.data('user-id');
+                const sessionId = userElement.data('session-id');
+
+                console.log('Dropped user:', userId, 'into group:', groupId);
+
+                // Call API to assign user to group
+                const result = await assignUserToGroup(userId, groupId, sessionId);
+
+                if (result.success) {
+                    // Success - move the element visually
+                    const clone = userElement.clone();
+                    clone.removeClass('ui-draggable ui-draggable-handle');
+                    clone.addClass('user-item-session');
+
+                    // Add remove button
+                    clone.append('<button class="btn btn-xs btn-danger remove-user-session">x</button>');
+
+                    jQuery(this).append(clone);
+
+                    // Remove from original list
+                    userElement.remove();
+
+                    // Show success message (optional)
+                    alert('User successfully assigned to group!');
+
+                    // Reload users not affected to update the list
+                    loadUsersNotAffected(sessionId, accountId);
+                } else {
+                    // Failed - show error and revert
+                    alert('Failed to assign user: ' + (result.message || 'Unknown error'));
+                    console.error('Assignment failed:', result);
+                }
+            }
+        });
+
+        console.log('Drag and drop initialized');
+    } else {
+        console.error('jQuery UI not loaded - drag and drop will not work');
+    }
+}
