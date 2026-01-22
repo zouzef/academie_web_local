@@ -326,7 +326,7 @@ def show_session_config(id_session):
 # ==========================================
 
 
-# api get group
+# api get group with student
 @dashboard_bp.route('/api/get-group/<int:session_id>/<int:account_id>')
 def get_group_api(session_id,account_id):
 	url = f"{BASE_URL}get-group/{account_id}/{session_id}"
@@ -344,7 +344,24 @@ def get_group_api(session_id,account_id):
 		print(f"Error coming from get_group_route {e}")
 		return jsonify({"Message": "Error"}),500
 
-
+# api delete group by id
+@dashboard_bp.route('/api/delete-group/<int:id_group>',methods=["DELETE"])
+def delete_group(id_group):
+	print(id_group)
+	return jsonify({"Message":"success"}),200
+	# url =f"{BASE_URL}//{id_group}"
+	# try:
+	# 	response = requests.post(url,verify=False)
+	# 	response.raise_for_status()
+	# 	if response.status_code == 200:
+	#
+	# 		return jsonify({"Message":"Succes group deleted "}),200
+	# 	else:
+	# 		return jsonify({"Message":"Error",}),400
+	#
+	# except Exception as e:
+	# 	print(f"Error coming from delete group")
+	# 	return jsonify({"Message":f"Error {e}"}),500
 
 
 @dashboard_bp.route('/dashboard/create-session-calendar/<int:id_session>')

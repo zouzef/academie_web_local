@@ -136,3 +136,81 @@
         </div>
     </div>
 </div>
+
+
+<!--========================-->
+    <!--Edit Group Modal-->
+<!--========================-->
+<style>
+/* Light blur effect for modal backdrop */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+
+}
+</style>
+
+<!-- Edit Group Modal -->
+<div class="modal fade" id="groupUpdateModal" tabindex="-1" aria-labelledby="groupUpdateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="groupUpdateModalLabel">Update Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="updateGroupForm">
+                    <input type="hidden" id="groupId" name="group_id">
+
+                    <div class="mb-3">
+                        <label for="groupName" class="form-label">Name</label>
+                        <input type="text" class="form-control" id="groupName" name="group_name" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="groupCapacity" class="form-label">Capacity</label>
+                        <input type="number" class="form-control" id="groupCapacity" name="group_capacity" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="relation-collection">Relations Teacher And Subject</label>
+                        <div id="relation-collection">
+                            <!-- Dynamic relations will be added here -->
+                        </div>
+                        <button type="button" class="btn btn-secondary mt-2" id="add-relation">Add Relation</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="updateGroupBtn">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<!--============================-->
+    <!--show student Group Modal-->
+<!--============================-->
+
+<!-- Show Students Modal -->
+<div class="modal fade" id="groupShowStudentModal" tabindex="-1" aria-labelledby="groupShowStudentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="groupShowStudentModalLabel">Students</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <ul class="list-group" id="students-list">
+                    <!-- Students will be loaded here dynamically -->
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" id="add-user-btn" class="btn btn-primary">Add Student</button>
+            </div>
+        </div>
+    </div>
+</div>

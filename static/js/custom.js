@@ -1750,33 +1750,90 @@ async function loadGroupsToGroupConfig(accountId, sessionId) {
     }
 }
 
+
+
+
 // Function to create group card HTML
 function createGroupCard(group) {
+    // Generate student items HTML
+    const studentItems = group.list_student.map(student => `
+        <div class="user-item-session" data-id="${student.relation_id}" data-session-id="${group.session_id}" data-user-id="${student.user_id}">
+            ${student.full_name}
+            <button class="btn btn-xs btn-danger remove-user-session">x</button>
+        </div>
+    `).join('');
+
+    // Create the complete group card HTML
     return `
-        <div class="col-xl-4 col-xxl-4">
-            <div class="card contact_list text-center">
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card contact_list text-center group-card">
                 <div class="card-body">
                     <div class="user-content-session" data-group-id="${group.id}">
-                        <div class="user-info">
-                            <div class="user-details">
+                        <!-- Header / Group info -->
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div class="user-details text-start">
                                 <h4 class="user-name mb-0">${group.name}</h4>
-                                <p>Capacity: ${group.capacity}</p>
+                                <p class="mb-0 text-muted">
+                                    Capacity: ${group.list_student.length}/${group.capacity}
+                                </p>
+                            </div>
+
+                            <!-- Dropdown - Fixed structure -->
+                            <div class="dropdown">
+                                <button class="btn sharp btn-light"
+                                        type="button"
+                                        data-bs-toggle="dropdown"
+                                        aria-expanded="false">
+                                        <svg width="24" height="6" viewBox="0 0 24 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M12.0012 0.359985C11.6543 0.359985 11.3109 0.428302 10.9904 0.561035C10.67 0.693767 10.3788 0.888317 10.1335 1.13358C9.88829 1.37883 9.69374 1.67 9.56101 1.99044C9.42828 2.31089 9.35996 2.65434 9.35996 3.00119C9.35996 3.34803 9.42828 3.69148 9.56101 4.01193C9.69374 4.33237 9.88829 4.62354 10.1335 4.8688C10.3788 5.11405 10.67 5.3086 10.9904 5.44134C11.3109 5.57407 11.6543 5.64239 12.0012 5.64239C12.7017 5.64223 13.3734 5.36381 13.8686 4.86837C14.3638 4.37294 14.6419 3.70108 14.6418 3.00059C14.6416 2.3001 14.3632 1.62836 13.8677 1.13315C13.3723 0.637942 12.7004 0.359826 12 0.359985H12.0012ZM3.60116 0.359985C3.25431 0.359985 2.91086 0.428302 2.59042 0.561035C2.26997 0.693767 1.97881 0.888317 1.73355 1.13358C1.48829 1.37883 1.29374 1.67 1.16101 1.99044C1.02828 2.31089 0.959961 2.65434 0.959961 3.00119C0.959961 3.34803 1.02828 3.69148 1.16101 4.01193C1.29374 4.33237 1.48829 4.62354 1.73355 4.8688C1.97881 5.11405 2.26997 5.3086 2.59042 5.44134C2.91086 5.57407 3.25431 5.64239 3.60116 5.64239C4.30165 5.64223 4.97339 5.36381 5.4686 4.86837C5.9638 4.37294 6.24192 3.70108 6.24176 3.00059C6.2416 2.3001 5.96318 1.62836 5.46775 1.13315C4.97231 0.637942 4.30045 0.359826 3.59996 0.359985H3.60116ZM20.4012 0.359985C20.0543 0.359985 19.7109 0.428302 19.3904 0.561035C19.07 0.693767 18.7788 0.888317 18.5336 1.13358C18.2883 1.37883 18.0937 1.67 17.961 1.99044C17.8283 2.31089 17.76 2.65434 17.76 3.00119C17.76 3.34803 17.8283 3.69148 17.961 4.01193C18.0937 4.33237 18.2883 4.62354 18.5336 4.8688C18.7788 5.11405 19.07 5.3086 19.3904 5.44134C19.7109 5.57407 20.0543 5.64239 20.4012 5.64239C21.1017 5.64223 21.7734 5.36381 22.2686 4.86837C22.7638 4.37294 23.0419 3.70108 23.0418 3.00059C23.0416 2.3001 22.7632 1.62836 22.2677 1.13315C21.7723 0.637942 21.1005 0.359826 20.4 0.359985H20.4012Z" fill="#A098AE"></path>
+                                        </svg>
+                                </button>
+
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item delete-group"
+                                           href="javascript:void(0);"
+                                           data-id="${group.id}">
+                                            Delete
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item edit-group"
+                                           href="javascript:void(0);"
+                                           data-id="${group.id}"
+                                           data-name="${group.name}"
+                                           data-capacity="${group.capacity}"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#groupUpdateModal">
+                                            Edit
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item show-student"
+                                           href="javascript:void(0);"
+                                           data-id="${group.id}"
+                                           data-name="${group.name}"
+                                           data-capacity="${group.capacity}"
+                                           data-bs-toggle="modal"
+                                           data-bs-target="#groupShowStudentModal">
+                                            Show students
+                                        </a>
+                                    </li>
+                                </ul>
                             </div>
                         </div>
-                        <div class="dropdown">
-                            <a href="javascript:void(0);" class="btn sharp btn-light" data-bs-toggle="dropdown" aria-expanded="false">
-                                <svg width="24" height="6" viewBox="0 0 24 6" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12.0012 0.359985C11.6543 0.359985 11.3109 0.428302 10.9904 0.561035C10.67 0.693767 10.3788 0.888317 10.1335 1.13358C9.88829 1.37883 9.69374 1.67 9.56101 1.99044C9.42828 2.31089 9.35996 2.65434 9.35996 3.00119C9.35996 3.34803 9.42828 3.69148 9.56101 4.01193C9.69374 4.33237 9.88829 4.62354 10.1335 4.8688C10.3788 5.11405 10.67 5.3086 10.9904 5.44134C11.3109 5.57407 11.6543 5.64239 12.0012 5.64239C12.7017 5.64223 13.3734 5.36381 13.8686 4.86837C14.3638 4.37294 14.6419 3.70108 14.6418 3.00059C14.6416 2.3001 14.3632 1.62836 13.8677 1.13315C13.3723 0.637942 12.7004 0.359826 12 0.359985H12.0012ZM3.60116 0.359985C3.25431 0.359985 2.91086 0.428302 2.59042 0.561035C2.26997 0.693767 1.97881 0.888317 1.73355 1.13358C1.48829 1.37883 1.29374 1.67 1.16101 1.99044C1.02828 2.31089 0.959961 2.65434 0.959961 3.00119C0.959961 3.34803 1.02828 3.69148 1.16101 4.01193C1.29374 4.33237 1.48829 4.62354 1.73355 4.8688C1.97881 5.11405 2.26997 5.3086 2.59042 5.44134C2.91086 5.57407 3.25431 5.64239 3.60116 5.64239C4.30165 5.64223 4.97339 5.36381 5.4686 4.86837C5.9638 4.37294 6.24192 3.70108 6.24176 3.00059C6.2416 2.3001 5.96318 1.62836 5.46775 1.13315C4.97231 0.637942 4.30045 0.359826 3.59996 0.359985H3.60116ZM20.4012 0.359985C20.0543 0.359985 19.7109 0.428302 19.3904 0.561035C19.07 0.693767 18.7788 0.888317 18.5336 1.13358C18.2883 1.37883 18.0937 1.67 17.961 1.99044C17.8283 2.31089 17.76 2.65434 17.76 3.00119C17.76 3.34803 17.8283 3.69148 17.961 4.01193C18.0937 4.33237 18.2883 4.62354 18.5336 4.8688C18.7788 5.11405 19.07 5.3086 19.3904 5.44134C19.7109 5.57407 20.0543 5.64239 20.4012 5.64239C21.1017 5.64223 21.7734 5.36381 22.2686 4.86837C22.7638 4.37294 23.0419 3.70108 23.0418 3.00059C23.0416 2.3001 22.7632 1.62836 22.2677 1.13315C21.7723 0.637942 21.1005 0.359826 20.4 0.359985H20.4012Z" fill="#A098AE"></path>
-                                </svg>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item delete-group" href="javascript:void(0);" data-id="${group.id}">Delete</a>
-                                <a class="dropdown-item edit-group" href="javascript:void(0);" data-id="${group.id}" data-name="${group.name}" data-capacity="${group.capacity}" data-bs-toggle="modal" data-bs-target="#groupUpdateModal">Edit</a>
-                                <a class="dropdown-item show-student" href="javascript:void(0);" data-id="${group.id}" data-name="${group.name}" data-capacity="${group.capacity}" data-bs-toggle="modal" data-bs-target="#groupShowStudentModal">Show students</a>
-                            </div>
-                        </div>
-                        <div class="droppable-area-session ui-droppable" style="max-height: 250px !important; overflow-y: auto;" data-group-id="${group.id}" data-capacity="${group.capacity}">
-                            <!-- Students will be loaded here dynamically -->
+
+                        <!-- Students list -->
+                        <div class="droppable-area-session ui-droppable"
+                             style="max-height: 250px !important; overflow-y: auto;"
+                             data-group-id="${group.id}"
+                             data-capacity="${group.capacity}">
+
+                            ${studentItems || `
+                                <p class="text-muted text-center mb-0">
+                                    No students in this group
+                                </p>
+                            `}
                         </div>
                     </div>
                 </div>
@@ -1785,6 +1842,180 @@ function createGroupCard(group) {
     `;
 }
 
+
+
+//======================================
+//DELETE GROUP FROM THE DROP DOWN MENU
+//======================================
+$(document).on('click', '.delete-group', function(e) {
+    e.preventDefault();
+    const groupId = $(this).data('id');
+
+    Swal.fire({
+        title: 'Are you sure?',
+        text: 'This Group will be deleted permanently. You will not be able to undo this action.',
+        icon: 'error',
+        showCancelButton: true,
+        confirmButtonColor: '#dd3333',
+        cancelButtonColor: '#64c5b1',
+        confirmButtonText: 'Yes, delete it.',
+        cancelButtonText: 'No, cancel.',
+        width: '500px',
+        padding: '20px'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteGroup(groupId);
+        }
+    });
+});
+
+
+function deleteGroup(groupId) {
+    $.ajax({
+        url: `/api/delete-group/${groupId}`, // Replace with your actual endpoint
+        type: 'DELETE',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') // If using Laravel
+        },
+        success: function(response) {
+            Swal.fire({
+                title: 'Deleted!',
+                text: 'Group has been deleted successfully.',
+                icon: 'success',
+                confirmButtonColor: '#64c5b1',
+                timer: 2000,
+                showConfirmButton: false
+            });
+
+            // Remove the group card from the page
+            $(`.user-content-session[data-group-id="${groupId}"]`)
+                .closest('.col-md-6, .col-lg-4')
+                .fadeOut(300, function() {
+                    $(this).remove();
+                });
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                title: 'Error!',
+                text: 'Failed to delete the group. Please try again.',
+                icon: 'error',
+                confirmButtonColor: '#dd3333'
+            });
+        }
+    });
+}
+
+// When "Delete" button is clicked for a student
+$(document).on('click', '.delete-student', function(e) {
+    e.preventDefault();
+
+    const relationId = $(this).data('id');
+
+    console.log('Student Relation ID:', relationId);
+
+    // Or display in alert
+    alert('Student ID: ' + relationId);
+});
+
+
+//======================================
+//EDIT GROUP FROM THE DROP DOWN MENU
+//======================================
+
+$(document).on('click', '.edit-group', function(e) {
+    // Get data from the button
+    const groupId = $(this).data('id');
+    const groupName = $(this).data('name');
+    const groupCapacity = $(this).data('capacity');
+
+    // Fill the form fields with the group data
+    $('#groupId').val(groupId);
+    $('#groupName').val(groupName);
+    $('#groupCapacity').val(groupCapacity);
+
+    // Clear previous relations
+    $('#relation-collection').empty();
+
+    // Now fetch the relations for this group from your backend
+    // Replace '/api/groups/' with your actual endpoint
+    $.ajax({
+        url: `/api/groups/${groupId}`,
+        type: 'GET',
+        success: function(response) {
+            // Assuming response.relations contains the teacher-subject relations
+            if (response.relations && response.relations.length > 0) {
+                response.relations.forEach(relation => {
+                    addRelationItem(relation);
+                });
+            } else {
+                // If no relations, add one empty relation
+                addRelationItem();
+            }
+        },
+        error: function() {
+            // On error, add one empty relation
+            addRelationItem();
+        }
+    });
+
+    // The modal will open automatically because of data-bs-toggle="modal"
+});
+
+
+
+//======================================
+//SHOW STUDENT FROM GROUP
+//======================================
+// When "Show students" button is clicked
+$(document).on('click', '.show-student', function(e) {
+    e.preventDefault();
+
+    const groupId = $(this).data('id');
+    const groupName = $(this).data('name');
+
+    // Update modal title
+    $('#groupShowStudentModalLabel').text(`Students - ${groupName}`);
+
+    // Clear previous students
+    $('#students-list').empty();
+
+    // Find the group card in the DOM
+    const groupCard = $(`.user-content-session[data-group-id="${groupId}"]`);
+
+    // Get all students from the group card
+    const students = groupCard.find('.user-item-session');
+
+    // Check if there are students
+    if (students.length > 0) {
+        // Loop through students and add them to the modal list
+        students.each(function() {
+            const studentName = $(this).text().trim().replace('x', '').trim(); // Remove the 'x' button text
+            const relationId = $(this).data('id');
+            const sessionId = $(this).data('session-id');
+            const userId = $(this).data('user-id');
+
+            const studentItem = `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    ${studentName}
+                    <button class="btn btn-danger btn-sm delete-student"
+                            data-session-id="${sessionId}"
+                            data-user-id="${userId}"
+                            data-id="${relationId}"
+                            data-name="${studentName}"
+                            data-group-id="${groupId}">
+                        Delete
+                    </button>
+                </li>
+            `;
+            $('#students-list').append(studentItem);
+        });
+    } else {
+        // No students found
+        $('#students-list').html('<li class="list-group-item text-center text-muted">No students in this group</li>');
+    }
+
+    // The modal will open automatically because of data-bs-toggle="modal" in the button
+});
 
 
 //===========================================================
