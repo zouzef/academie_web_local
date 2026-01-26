@@ -83,9 +83,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 var startDate = adjustTimezone(item.start_time);
                 var endDate = adjustTimezone(item.end_time);
 
-                console.log('Original start:', item.start_time);
-                console.log('Adjusted start:', startDate);
-
                 return {
                   id: item.id,
                   title: item.title,

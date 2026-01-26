@@ -3,8 +3,6 @@ var Akademi  = function(){
    /* Search Bar ============ */
    var screenWidth = $( window ).width();
    var screenHeight = $( window ).height();
-   
-
 
    var handlePreloader = function(){
     // Wait for the page to fully load
@@ -21,7 +19,6 @@ var Akademi  = function(){
 
 // Call it immediately
 handlePreloader();
-
    var handleMetisMenu = function() {
 	   if(jQuery('#menu').length > 0 ){
 		   $("#menu").metisMenu();
@@ -33,13 +30,11 @@ handlePreloader();
 		   }
 	   });
    }
-  
    var handleAllChecked = function() {
 	   $("#checkAll").on('change',function() {
 		   $("td input, .email-list .custom-checkbox input").prop('checked', $(this).prop("checked"));
 	   });
    }
-
    var handleNavigation = function() {
     $(".hamburger").on('click', function() {
         console.log("Hamburger clicked!"); // TEST
@@ -47,7 +42,6 @@ handlePreloader();
         $(this).toggleClass("is-active");
     });
 }
- 
    var handleCurrentActive = function() {
 	   for (var nk = window.location,
 		   o = $("ul#menu a").filter(function() {
@@ -68,7 +62,6 @@ handlePreloader();
 			   .addClass("mm-active");
 	   }
    }
-
    var handleMiniSidebar = function() {
 	   $("ul#menu>li").on('click', function() {
 		   const sidebarStyle = $('body').attr('data-sidebar-style');
@@ -78,7 +71,6 @@ handlePreloader();
 		   }
 	   })
    }
-  
    var handleMinHeight = function() {
 	   var win_h = window.outerHeight;
 	   var win_h = window.outerHeight;
@@ -86,7 +78,6 @@ handlePreloader();
 		   $(".content-body").css("min-height", (win_h + 60) + "px");
 	   };
    }
-   
    var handleDataAction = function() {
 	   $('a[data-action="collapse"]').on("click", function(i) {
 		   i.preventDefault(),
@@ -116,7 +107,6 @@ handlePreloader();
 			   }, 2000)
 	   });
    }
-
    var handleHeaderHight = function() {
 	   const headerHight = $('.header').innerHeight();
 	   $(window).scroll(function() {
@@ -124,7 +114,6 @@ handlePreloader();
 			   $(this.window).scrollTop() >= headerHight ? $('.dlabnav').addClass('fixed') : $('.dlabnav').removeClass('fixed')
 	   });
    }
-   
    var handleDzScroll = function() {
 	   jQuery('.dlab-scroll').each(function(){
 		   var scroolWidgetId = jQuery(this).attr('id');
@@ -136,7 +125,6 @@ handlePreloader();
 		   ps.isRtl = false;
 	   })
    }
-   
    var handleMenuTabs = function() {
 	   if(screenWidth <= 991 ){
 		   jQuery('.menu-tabs .nav-link').on('click',function(){
@@ -161,7 +149,6 @@ handlePreloader();
 		   });
 	   }
    }
-   
    var handleChatbox = function() {
 	   jQuery('.bell-link').on('click',function(){
 		   jQuery('.chatbox').addClass('active');
@@ -170,7 +157,6 @@ handlePreloader();
 		   jQuery('.chatbox').removeClass('active');
 	   });
    }
-   
    var handleMenuWallet = function() {
 	   jQuery('.menu-wallet').on('click',function(){
 		   jQuery('.wallet-bar').toggleClass('active');
@@ -189,7 +175,6 @@ handlePreloader();
 		   }
 	   }, 500);
    }
-   
    var handlePerfectScrollbar = function() {
 	   if(jQuery('.dlabnav-scroll').length > 0)
 	   {
@@ -199,7 +184,6 @@ handlePreloader();
 		   qs.isRtl = false;
 	   }
    }
-
    var handleBtnNumber = function() {
 	   $('.btn-number').on('click', function(e) {
 		   e.preventDefault();
@@ -218,7 +202,6 @@ handlePreloader();
 		   }
 	   });
    }
-   
    var handleDzChatUser = function() {
 	   jQuery('.dlab-chat-user-box .dlab-chat-user').on('click',function(){
 		   jQuery('.dlab-chat-user-box').addClass('d-none');
@@ -235,12 +218,6 @@ handlePreloader();
 	   jQuery('.dz-fullscreen').on('click',function(){
 		   jQuery('.dz-fullscreen').toggleClass('active');
 	   });
-	   
-	   /* var vHeight = function(){ */
-		   
-	   /* } */
-	   
-	   
    }
    /* WOW ANIMATION ============ */
    var wow_animation = function(){
@@ -256,10 +233,6 @@ handlePreloader();
 		   wow.init();	
 	   }	
    }
-   
-   
-   
-   
    var handleshowPass = function(){
 	   jQuery('.show-pass').on('click',function(){
 		   jQuery(this).toggleClass('active');
@@ -270,13 +243,11 @@ handlePreloader();
 		   }
 	   });
    }
-   
    var heartBlast = function (){
 	   $(".heart").on("click", function() {
 		   $(this).toggleClass("heart-blast");
 	   });
    }
-   
    var handleDzLoadMore = function() {
 	   $(".dlab-load-more").on('click', function(e)
 	   {
@@ -297,7 +268,6 @@ handlePreloader();
 		   })
 	   });
    }
-   
    var handleLightgallery = function(){
 	   if(jQuery('#lightgallery ,#lightgallery-2').length > 0){
 		   $('#lightgallery ,#lightgallery-2').lightGallery({
@@ -322,13 +292,10 @@ handlePreloader();
 		   $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
 	   });
    }
-   
-	 var vHeight = function(){
+   var vHeight = function(){
 	   var ch = $(window).height() - 206;
 	   $(".chatbox .msg_card_body").css('height',ch);
    }
-   
-
    var domoPanel = function(){
 	   if(jQuery(".dlab-demo-content").length>0) {
 		   const ps = new PerfectScrollbar('.dlab-demo-content');
@@ -344,8 +311,7 @@ handlePreloader();
 			   $(this).addClass('demo-active');
 		   });
 	   }
-   } 
-   
+   }
    var handleDatetimepicker = function(){
 	   if(jQuery("#datetimepicker1").length>0) {
 		   $('#datetimepicker1').datetimepicker({
@@ -353,7 +319,6 @@ handlePreloader();
 		   });
 	   }
    }
-   
    var handleCkEditor = function(){
 	   if(jQuery("#ckeditor").length>0) {
 		   ClassicEditor
@@ -368,7 +333,6 @@ handlePreloader();
 		   } );
 	   }
    }
-   
    var handleMenuPosition = function(){
 	   
 	   if(screenWidth > 1024){
@@ -397,7 +361,6 @@ handlePreloader();
 		   });
 	   }
    }
-
    var handleCustomActions = function(){
 	   jQuery('.w3-delete').on('click',function(){
 		   jQuery(this).parents('tr').attr('style','background-color:red !important').fadeOut('slow',function(){
@@ -452,16 +415,13 @@ handlePreloader();
 		   $('body').scrollspy({target: ".navbar", offset: headerHeight + 2});  
 	   }
    }
-
-   
-    var handelBootstrapSelect = function(){
+   var handelBootstrapSelect = function(){
     /* Bootstrap Select box function by  = bootstrap-select.min.js */
         if(jQuery('select').length > 0){
             // Only initialize selectpicker for selects NOT inside modals
             jQuery('select').not('.modal select').selectpicker();
         }
     }
- 
    /* Header Fixed ============ */
    var headerFix = function(){
 	   'use strict';
@@ -871,6 +831,7 @@ function change_status() {
 /* ======== FUNCTION TO RESET ATTENDANCE ========*/
 /*==========================================*/
 
+
 /* Function to reset attendance */
 function reset_attendance(calendar_id) {
     if (!confirm("Are you sure you want to reset all attendances?")) {
@@ -971,7 +932,6 @@ function get_statistic(calendar_id) {
         alert("An error occurred while fetching attendance statistics.");
     });
 }
-
 
 
 /*==========================================*/
@@ -1095,6 +1055,7 @@ function download_attendance_pdf() {
     html2pdf().set(opt).from(element).save();
 }
 
+
 document.addEventListener('DOMContentLoaded', function() {
     const downloadButton = document.getElementById('download-attendance-pdf');
     if (downloadButton) {
@@ -1104,7 +1065,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
 
 
 /*==========================================*/
@@ -1227,6 +1187,7 @@ function load_room(local_id) {
     });
 }
 
+
 // Call it when page loads - get local_id from data attributes
 document.addEventListener('DOMContentLoaded', function() {
     // Get data from the calendar-info div
@@ -1239,7 +1200,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('calendar-info element not found');
     }
 });
-
 
 
 /*==========================================*/
@@ -1299,6 +1259,7 @@ function load_teachers(session_id) {
     });
 }
 
+
 // Update your DOMContentLoaded to also load teachers
 document.addEventListener('DOMContentLoaded', function() {
     const calendarInfo = document.getElementById('calendar-info');
@@ -1315,12 +1276,6 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('calendar-info element not found');
     }
 });
-
-
-
-
-
-
 
 
 // Add this JavaScript to handle the modal dropdown shows
@@ -1471,8 +1426,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
-
 /* =========================================*/
 /* =========== JS MODAL ADD GROUP TO CALENDAR =========== */
 /* =========================================*/
@@ -1519,6 +1472,7 @@ function initCustomSelects() {
     });
 }
 
+
 // Handle duplicate field show/hide - GLOBAL FUNCTION
 function handleDuplicateChange(value) {
     const startTimeFields = document.getElementById('createStartTimeFields');
@@ -1544,6 +1498,7 @@ function getCustomSelectValue(name) {
     }
     return '';
 }
+
 
 // Initialize when modal opens
 document.addEventListener('DOMContentLoaded', function() {
@@ -1609,9 +1564,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
-
-
-
 
 
 // Handle delete interval confirmation
@@ -1696,7 +1648,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 
-
 //######################### java script of group ############################
 
 
@@ -1751,6 +1702,40 @@ async function loadGroupsToGroupConfig(accountId, sessionId) {
 }
 
 
+//=============================================
+//=========delete user from the group =========
+//=============================================
+
+$(document).on('click', '.remove-user-session', async function() {
+    // Get the parent div that contains all the data attributes
+    const userItemDiv = $(this).closest('.user-item-session');
+
+    // Extract the IDs from data attributes
+    const relationId = userItemDiv.data('id');           // student.relation_id
+    const sessionId = userItemDiv.data('session-id');    // group.session_id
+    const userId = userItemDiv.data('user-id');          // student.user_id
+
+    try {
+        // Fetch groups from your API endpoint
+        const response = await fetch(`/api/delete_user_f_group/${sessionId}/${userId}`);
+
+        if (!response.ok){
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        console.log('API Response:', result);
+
+        // Optionally remove the user from the UI after successful deletion
+        userItemDiv.remove();
+
+        // Or show a success message
+        alert('User successfully removed from group');
+
+    } catch (error) {
+        console.error('Error deleting user from group:', error);
+        alert('Failed to remove user from group');
+    }
+});
 
 
 // Function to create group card HTML
@@ -1869,7 +1854,6 @@ $(document).on('click', '.delete-group', function(e) {
     });
 });
 
-
 function deleteGroup(groupId) {
     $.ajax({
         url: `/api/delete-group/${groupId}`, // Replace with your actual endpoint
@@ -1921,6 +1905,7 @@ $(document).on('click', '.delete-student', function(e) {
 //======================================
 //EDIT GROUP FROM THE DROP DOWN MENU
 //======================================
+
 
 $(document).on('click', '.edit-group', function(e) {
     // Get data from the button
@@ -2079,6 +2064,7 @@ async function loadUsersNotAffected(sessionId, accountId) {
     }
 }
 
+
 // Function to create user element (updated to use new field names)
 function createUserElement(user, sessionId) {
     const userDiv = document.createElement('div');
@@ -2100,7 +2086,6 @@ function createUserElement(user, sessionId) {
 
     return userDiv;
 }
-
 
 
 // Function to assign user to group via API
@@ -2131,7 +2116,6 @@ async function assignUserToGroup(userId, groupId, sessionId) {
         return { success: false, message: error.message };
     }
 }
-
 
 
 // Function to initialize drag and drop (no changes needed)
