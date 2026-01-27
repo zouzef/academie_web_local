@@ -184,7 +184,6 @@ def delete_calander(session_id):
 
 		start_date = data.get('start_date')
 		end_date = data.get('end_date')
-		print(f"Received - Start Date: {start_date}, End Date: {end_date}")
 
 		if not start_date or not end_date:
 			return jsonify({"message": "Error: missing start_date or end_date"}), 400
@@ -232,7 +231,6 @@ def get_group_api(session_id, account_id):
 	url = f"{BASE_URL}get-group/{account_id}/{session_id}"
 	try:
 		response = requests.get(url, verify=False)
-		print(response)
 		response.raise_for_status()
 		if response.status_code == 200:
 			data = response.json()
@@ -250,7 +248,6 @@ def delete_group(id_group):
 	url = f"{BASE_URL}/delete-group/{id_group}"
 	try:
 
-		print("delete group")
 		response = requests.post(url, verify= False)
 		response.raise_for_status()
 
@@ -268,7 +265,6 @@ def delete_group(id_group):
 @dashboard_bp.route('/api/delete_user_f_group/<int:session_id>/<int:user_id>',methods=["POST"])
 def delete_user_from_group(session_id, user_id):
 	url = f"{BASE_URL}/delete-user-from-group/{session_id}/{user_id}"
-	print(url)
 	try:
 		response = requests.post(url,verify=False)
 		response.raise_for_status()
@@ -335,6 +331,64 @@ def affect_user(session_id):
 	except Exception as e:
 		print(f"Error {e} coming from server")
 		return jsonify({"Message": f"Error: {e}"}), 500
+
+
+@dashboard_bp.route('/api/get_subject_group/<int:account_id>', methods=["GET"])
+def get_subject_group(account_id):
+	url = f"{BASE_URL}get-subject-account/{account_id}"
+	try:
+		response = requests.get(url, verify=False)
+		response.raise_for_status()
+		# Return the data directly from the backend
+		return jsonify(response.json()), 200
+
+	except requests.exceptions.HTTPError as http_err:
+		# Handle HTTP errors (4xx, 5xx)
+		print(f"HTTP error in get_subject_group: {http_err}")
+		return jsonify({"Message": "Error fetching subject account", "Data": []}), response.status_code
+
+	except requests.exceptions.RequestException as req_err:
+		# Handle connection errors
+		print(f"Request error in get_subject_group: {req_err}")
+		return jsonify({"Message": "Error connecting to server", "Data": []}), 500
+
+	except Exception as e:
+		# Handle any other errors
+		print(f"Error in get_subject_group: {str(e)}")
+		return jsonify({"Message": "Internal server error", "Data": []}), 500
+
+
+@dashboard_bp.route('/api/create_group/<int:session_id>', methods=['POST'])
+def create_group(session_id):
+	url = f"{BASE_URL}create_group/{session_id}"
+	try:
+		# Get JSON data from the request
+		data = request.json
+
+		# Validate required fields
+		if not data:
+			return jsonify({"Message": "No data provided"}), 400
+
+		# Send POST request with data
+		response = requests.post(url, json=data, verify=False)
+		response.raise_for_status()
+
+		# Return the actual response from the backend
+		return jsonify(response.json()), response.status_code
+
+	except requests.exceptions.HTTPError as http_err:
+		print(f"HTTP error in create_group: {http_err}")
+		if response:
+			return jsonify(response.json()), response.status_code
+		return jsonify({"Message": "HTTP error occurred"}), 500
+
+	except requests.exceptions.RequestException as req_err:
+		print(f"Request error in create_group: {req_err}")
+		return jsonify({"Message": "Error connecting to server"}), 500
+
+	except Exception as e:
+		print(f"Error in create_group: {str(e)}")
+		return jsonify({"Message": "Error coming from server", "Error": str(e)}), 500
 
 
 # ==========================================
@@ -589,9 +643,23 @@ def show_create_group_session(id_session):
 
 	account_id = session.get('account_id', 3)
 
+	# Get local_id from the local details
+	local_details = get_local(account_id)
+
+	# Extract local_id from the first local (or you can let user choose)
+	if local_details and len(local_details) > 0:
+		local_id = local_details[0].get('id', 1)  # Get the first local's id
+	else:
+		local_id = 1  # Default fallback
+
+	print(f"account_id: {account_id}")
+	print(f"local_id: {local_id}")
+	print(f"id_session: {id_session}")
+
 	return render_template('index.html',
 						   id_session=id_session,
 						   account_id=account_id,
+						   local_id=local_id,
 						   page='group_user_session')
 
 

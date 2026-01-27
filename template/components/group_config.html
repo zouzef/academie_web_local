@@ -210,3 +210,228 @@
         </div>
     </div>
 </div>
+
+
+<div class="modal fade" id="groupModal" tabindex="-1" aria-labelledby="groupModalLabel">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="groupModalLabel">Add Group</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form name="relation_group_local_session" method="post" id="group-local-session-form" enctype="multipart/form-data">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="relation_group_local_session_name">Name <span class="required">*</span></label>
+                        <input type="text" id="relation_group_local_session_name" name="relation_group_local_session[name]" required="required" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label for="relation_group_local_session_capacity">Capacity <span class="required">*</span></label>
+                        <input type="number" id="relation_group_local_session_capacity" name="relation_group_local_session[capacity]" required="required" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label>Relations Teacher And Subject</label>
+
+                        <!-- This is where the relation forms will be added -->
+                        <div id="relation_group_local_session_relationTeacherToSubjectGroups" class="relation-collection"></div>
+
+                        <button type="button" class="btn btn-secondary mt-2" id="add-relationn">Add Relation</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
+                </div>
+                <input type="hidden" id="relation_group_local_session__token" name="relation_group_local_session[_token]" value="cf9e58d7c4502747f93bf29fcf.-e3brGssxI8V3nk62Dq4MlNH9y1yRnQbvKBmUdiO0Mk.roXpmgBPvLt3nEBNolHqWwwzr2hECR5XysEjOeHXmaarqL2bBRud20aHEg">
+            </form>
+        </div>
+    </div>
+</div>
+
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-body text-center p-5">
+                <div class="success-checkmark mb-4">
+                    <div class="check-icon">
+                        <span class="icon-line line-tip"></span>
+                        <span class="icon-line line-long"></span>
+                        <div class="icon-circle"></div>
+                        <div class="icon-fix"></div>
+                    </div>
+                </div>
+                <h3 class="text-success mb-3">Success!</h3>
+                <p class="text-muted mb-4" id="successMessage">Group created successfully!</p>
+                <button type="button" class="btn btn-success px-5" data-bs-dismiss="modal">OK</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<style>
+    /* Success Modal Styles */
+    #successModal .modal-content {
+        border-radius: 20px;
+        overflow: hidden;
+    }
+
+    /* Animated Checkmark */
+    .success-checkmark {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+    }
+
+    .success-checkmark .check-icon {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        border-radius: 50%;
+        box-sizing: content-box;
+        border: 4px solid #4CAF50;
+    }
+
+    .success-checkmark .check-icon::before {
+        top: 3px;
+        left: -2px;
+        width: 30px;
+        transform-origin: 100% 50%;
+        border-radius: 100px 0 0 100px;
+    }
+
+    .success-checkmark .check-icon::after {
+        top: 0;
+        left: 30px;
+        width: 60px;
+        transform-origin: 0 50%;
+        border-radius: 0 100px 100px 0;
+        animation: rotate-circle 4.25s ease-in;
+    }
+
+    .success-checkmark .check-icon::before,
+    .success-checkmark .check-icon::after {
+        content: '';
+        height: 100px;
+        position: absolute;
+        background: #FFFFFF;
+        transform: rotate(-45deg);
+    }
+
+    .success-checkmark .icon-line {
+        height: 5px;
+        background-color: #4CAF50;
+        display: block;
+        border-radius: 2px;
+        position: absolute;
+        z-index: 10;
+    }
+
+    .success-checkmark .icon-line.line-tip {
+        top: 46px;
+        left: 14px;
+        width: 25px;
+        transform: rotate(45deg);
+        animation: icon-line-tip 0.75s;
+    }
+
+    .success-checkmark .icon-line.line-long {
+        top: 38px;
+        right: 8px;
+        width: 47px;
+        transform: rotate(-45deg);
+        animation: icon-line-long 0.75s;
+    }
+
+    .success-checkmark .icon-circle {
+        top: -4px;
+        left: -4px;
+        z-index: 10;
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        position: absolute;
+        box-sizing: content-box;
+        border: 4px solid rgba(76, 175, 80, .5);
+    }
+
+    .success-checkmark .icon-fix {
+        top: 8px;
+        width: 5px;
+        left: 26px;
+        z-index: 1;
+        height: 85px;
+        position: absolute;
+        transform: rotate(-45deg);
+        background-color: #FFFFFF;
+    }
+
+    /* Animations */
+    @keyframes rotate-circle {
+        0% {
+            transform: rotate(-45deg);
+        }
+        5% {
+            transform: rotate(-45deg);
+        }
+        12% {
+            transform: rotate(-405deg);
+        }
+        100% {
+            transform: rotate(-405deg);
+        }
+    }
+
+    @keyframes icon-line-tip {
+        0% {
+            width: 0;
+            left: 1px;
+            top: 19px;
+        }
+        54% {
+            width: 0;
+            left: 1px;
+            top: 19px;
+        }
+        70% {
+            width: 50px;
+            left: -8px;
+            top: 37px;
+        }
+        84% {
+            width: 17px;
+            left: 21px;
+            top: 48px;
+        }
+        100% {
+            width: 25px;
+            left: 14px;
+            top: 45px;
+        }
+    }
+
+    @keyframes icon-line-long {
+        0% {
+            width: 0;
+            right: 46px;
+            top: 54px;
+        }
+        65% {
+            width: 0;
+            right: 46px;
+            top: 54px;
+        }
+        84% {
+            width: 55px;
+            right: 0px;
+            top: 35px;
+        }
+        100% {
+            width: 47px;
+            right: 8px;
+            top: 38px;
+        }
+    }
+</style>

@@ -1717,7 +1717,12 @@ $(document).on('click', '.remove-user-session', async function() {
 
     try {
         // Fetch groups from your API endpoint
-        const response = await fetch(`/api/delete_user_f_group/${sessionId}/${userId}`);
+        const response = await fetch(`/api/delete_user_f_group/${sessionId}/${userId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
         if (!response.ok){
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -2175,3 +2180,330 @@ function initializeDragAndDrop() {
         console.error('jQuery UI not loaded - drag and drop will not work');
     }
 }
+
+
+
+//function for the relation in the add group
+$(document).ready(function() {
+    console.log('Script loaded');
+
+    let relationIndex = 0;
+    let subjectsData = [];
+    let teachersData = [];
+    let subjectsLoaded = false;
+    let teachersLoaded = false;
+
+    // Helper function to show error modal
+    function showErrorModal(message) {
+        $('#successMessage').text(message);
+        $('#successModal .text-success').removeClass('text-success').addClass('text-danger');
+        $('#successModal h3').text('Error');
+        $('#successModal .btn-success').removeClass('btn-success').addClass('btn-danger');
+        $('#successModal .check-icon').css('border-color', '#dc3545');
+        $('#successModal .icon-line').css('background-color', '#dc3545');
+        $('#successModal').modal('show');
+
+        // Reset to success styling when closed
+        $('#successModal').on('hidden.bs.modal', function() {
+            $('#successModal .text-danger').removeClass('text-danger').addClass('text-success');
+            $('#successModal h3').text('Success!');
+            $('#successModal .btn-danger').removeClass('btn-danger').addClass('btn-success');
+            $('#successModal .check-icon').css('border-color', '#4CAF50');
+            $('#successModal .icon-line').css('background-color', '#4CAF50');
+        });
+    }
+
+    // Helper function to show success modal
+    function showSuccessModal(message) {
+        $('#successMessage').text(message);
+        $('#successModal').modal('show');
+    }
+
+    // Fetch subjects when page loads
+    async function loadSubjects() {
+        try {
+            const accountId = window.ACCOUNT_ID;
+
+            if (!accountId) {
+                console.error('Account ID not found');
+                return;
+            }
+
+            console.log('Loading subjects for account:', accountId);
+            const response = await fetch(`/api/get_subject_group/${accountId}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Subjects API Response:', result);
+
+            if (result.Data) {
+                subjectsData = result.Data;
+                subjectsLoaded = true;
+                console.log('Subjects loaded successfully:', subjectsData);
+            }
+        } catch (error) {
+            console.error('Error loading subjects:', error);
+            showErrorModal('Failed to load subjects. Please refresh the page.');
+        }
+    }
+
+    // Fetch teachers when page loads
+    async function loadTeachers() {
+        try {
+            const accountId = window.ACCOUNT_ID;
+
+            if (!accountId) {
+                console.error('Account ID not found');
+                return;
+            }
+
+            console.log('Loading teachers for account:', accountId);
+            const response = await fetch(`/api/get_teacher/${accountId}`);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            console.log('Teachers API Response:', result);
+
+            // Check both possible response formats
+            if (result.data) {
+                teachersData = result.data;
+                teachersLoaded = true;
+                console.log('Teachers loaded successfully:', teachersData);
+            } else if (result.teacher) {
+                teachersData = result.teacher;
+                teachersLoaded = true;
+                console.log('Teachers loaded successfully:', teachersData);
+            }
+        } catch (error) {
+            console.error('Error loading teachers:', error);
+            showErrorModal('Failed to load teachers. Please refresh the page.');
+        }
+    }
+
+    // Load both subjects and teachers immediately
+    loadSubjects();
+    loadTeachers();
+
+    // Generate subject options HTML
+    function getSubjectOptions() {
+        if (subjectsData.length === 0) {
+            return '<option value="" selected="selected">No subjects available</option>';
+        }
+
+        let options = '<option value="" selected="selected">Choose the Subject...</option>';
+        subjectsData.forEach(subject => {
+            options += `<option value="${subject.id}">${subject.subject_name}</option>`;
+        });
+        return options;
+    }
+
+    // Generate teacher options HTML
+    function getTeacherOptions() {
+        if (teachersData.length === 0) {
+            return '<option value="" selected="selected">No teachers available</option>';
+        }
+
+        let options = '<option value="" selected="selected">Choose the Teacher...</option>';
+        teachersData.forEach(teacher => {
+            // Use full_name from the API response
+            const teacherName = teacher.full_name || teacher.username || teacher.email || 'Unknown';
+            options += `<option value="${teacher.id}">${teacherName}</option>`;
+        });
+        return options;
+    }
+
+    // Check if button exists
+    const addButton = $('#add-relationn');
+    console.log('Add relation button found:', addButton.length);
+
+    // Handle "Add Relation" button click
+    $('#add-relationn').on('click', function(e) {
+        e.preventDefault();
+        console.log('Add Relation button clicked!');
+        console.log('Subjects loaded?', subjectsLoaded);
+        console.log('Teachers loaded?', teachersLoaded);
+
+        const $collectionHolder = $('#relation_group_local_session_relationTeacherToSubjectGroups');
+
+        // Check if both subjects and teachers are loaded
+        if (!subjectsLoaded || !teachersLoaded) {
+            showErrorModal('Please wait, loading data...');
+            return;
+        }
+
+        // Create the new relation form HTML with dynamic subjects AND teachers
+        const newRelationForm = `
+            <div class="form-group relation-item mb-3 p-3 border rounded" data-index="${relationIndex}">
+                <div id="relation_group_local_session_relationTeacherToSubjectGroups_${relationIndex}">
+                    <div class="mb-3">
+                        <label for="relation_group_local_session_relationTeacherToSubjectGroups_${relationIndex}_subject" class="required" style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333;">
+                            Subject
+                        </label>
+                        <select id="relation_group_local_session_relationTeacherToSubjectGroups_${relationIndex}_subject"
+                                name="relation_group_local_session[relationTeacherToSubjectGroups][${relationIndex}][subject]"
+                                required="required"
+                                class="form-control relation-subject"
+                                style="width: 100%; box-sizing: border-box;">
+                            ${getSubjectOptions()}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="relation_group_local_session_relationTeacherToSubjectGroups_${relationIndex}_user" class="required" style="display: block; margin-bottom: 0.5rem; font-weight: bold; color: #333;">
+                            Teacher
+                        </label>
+                        <select id="relation_group_local_session_relationTeacherToSubjectGroups_${relationIndex}_user"
+                                name="relation_group_local_session[relationTeacherToSubjectGroups][${relationIndex}][user]"
+                                required="required"
+                                class="form-control relation-teacher"
+                                style="width: 100%; box-sizing: border-box;">
+                            ${getTeacherOptions()}
+                        </select>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-danger remove-relation" style="width: 100%; text-align: center; border-radius: 5px; padding: 0.5rem;">
+                    Remove
+                </button>
+            </div>
+        `;
+
+        $collectionHolder.append(newRelationForm);
+        console.log('Form added! Index:', relationIndex);
+
+        relationIndex++;
+    });
+
+    // Handle "Remove" button click
+    $(document).on('click', '.remove-relation', function() {
+        console.log('Remove button clicked');
+        $(this).closest('.relation-item').remove();
+    });
+
+    // Handle form submission
+    $('#group-local-session-form').on('submit', async function(e) {
+        e.preventDefault();
+        console.log('Form submitted!');
+
+        const sessionId = window.SESSION_ID;
+        const accountId = window.ACCOUNT_ID;
+
+        // Validate session and account IDs
+        if (!sessionId || !accountId) {
+            showErrorModal('Missing session or account information');
+            return;
+        }
+
+        // Get form values
+        const groupName = $('#relation_group_local_session_name').val().trim();
+        const capacity = $('#relation_group_local_session_capacity').val();
+
+        // Validate basic fields
+        if (!groupName) {
+            showErrorModal('Please enter a group name');
+            return;
+        }
+
+        if (!capacity || capacity <= 0) {
+            showErrorModal('Please enter a valid capacity');
+            return;
+        }
+
+        // Get all relations (subject + teacher pairs)
+        const relations = [];
+        $('.relation-item').each(function() {
+            const subjectId = $(this).find('.relation-subject').val();
+            const teacherId = $(this).find('.relation-teacher').val();
+
+            if (subjectId && teacherId) {
+                relations.push({
+                    subject_id: parseInt(subjectId),
+                    teacher_id: parseInt(teacherId)
+                });
+            }
+        });
+
+        // Validate at least one relation
+        if (relations.length === 0) {
+            showErrorModal('Please add at least one subject and teacher relation');
+            return;
+        }
+
+        // Use the first relation for the main group (as per your backend structure)
+        const firstRelation = relations[0];
+
+        // Prepare data
+        const formData = {
+            group_name: groupName,
+            capacity: parseInt(capacity),
+            subject_id: firstRelation.subject_id,
+            teacher_id: firstRelation.teacher_id,
+            account_id: accountId,
+            local_id: window.LOCAL_ID,
+
+            access_type: 0
+        };
+
+        console.log('Sending data:', formData);
+
+        try {
+            // Show loading state
+            const submitButton = $(this).find('button[type="submit"]');
+            const originalText = submitButton.text();
+            submitButton.prop('disabled', true).text('Creating...');
+
+            const response = await fetch(`/api/create_group/${sessionId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            const result = await response.json();
+            console.log('Server response:', result);
+
+            if (response.ok) {
+                // Hide the group modal first
+                $('#groupModal').modal('hide');
+
+                // Wait for modal to close, then show success
+                setTimeout(() => {
+                    // Show success modal
+                    showSuccessModal(`Group "${groupName}" created successfully!`);
+
+                    // Auto-reload after success modal is closed
+                    $('#successModal').on('hidden.bs.modal', function() {
+                        location.reload();
+                    });
+                }, 300);
+            } else {
+                showErrorModal('Error: ' + (result.Message || 'Failed to create group'));
+            }
+
+            // Restore button state
+            submitButton.prop('disabled', false).text(originalText);
+
+        } catch (error) {
+            console.error('Error creating group:', error);
+            showErrorModal('Failed to create group. Please try again.');
+
+            // Restore button state
+            const submitButton = $(this).find('button[type="submit"]');
+            submitButton.prop('disabled', false).text('Create');
+        }
+    });
+
+    // Reset form when modal is closed
+    $('#groupModal').on('hidden.bs.modal', function() {
+        console.log('Modal closed, resetting form');
+        $('#relation_group_local_session_relationTeacherToSubjectGroups').empty();
+        relationIndex = 0;
+        $('#group-local-session-form')[0].reset();
+    });
+});
+
