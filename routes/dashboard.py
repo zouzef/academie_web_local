@@ -153,7 +153,7 @@ def get_list_student(calendar_id):
 		print(f"Problem {e} is coming from the server ")
 		return []
 
-
+# Get calander for every session
 @dashboard_bp.route('/dashboard/get_calander_per_session/<int:account_id>/<int:session_id>', methods=['GET'])
 def api_get_calendar_per_session(account_id, session_id):
 	"""API endpoint to get calendar data as JSON"""
@@ -172,6 +172,7 @@ def api_get_calendar_per_session(account_id, session_id):
 		}), 500
 
 
+# Delete calander
 @dashboard_bp.route('/api/delete-calander/<int:session_id>', methods=['DELETE', 'POST'])
 def delete_calander(session_id):
 	"""Delete calendar interval"""
@@ -219,6 +220,31 @@ def delete_calander(session_id):
 		import traceback
 		traceback.print_exc()
 		return jsonify({"message": "Internal server error", "error": str(e)}), 500
+
+
+# Create calander
+@dashboard_bp.route('/api/create-calander', methods=['POST'])
+def create_calander():
+	url = f"{BASE_URL}/create_calander"
+	try:
+		response = requests.post(url,verify=False)
+		response.raise_for_status()
+
+		resp_code = response.status_code
+		if resp_code == 201:
+			return jsonify({
+				"Message":"Succes calander created successfuly"
+			}),200
+		elif resp_code == 402:
+			return response.json()
+
+
+	except Exception as e:
+		print(f"Error {e}: coming from create_calander")
+		return jsonify({"Message":"Error coming from server"}),500
+
+
+
 
 
 # ==========================================

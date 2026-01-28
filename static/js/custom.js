@@ -1324,7 +1324,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 type: document.getElementById('createTypeSessionSelect').value,
                 room: document.getElementById('createEventRoom').value,
                 subject: document.getElementById('createEventSubject').value,
-                completionTags: Array.from(document.getElementById('createEventCompletionTag').selectedOptions).map(option => option.value),
+                completionTags: (() => {
+                    const element = document.getElementById('createEventCompletionTag');
+                    if (!element) return [];
+
+                    // Get all selected options (with 'selected-option' class)
+                    const selectedOptions = element.querySelectorAll('.options .selected-option');
+
+                    // Extract values from data-value attributes
+                    const selectedValues = Array.from(selectedOptions).map(option =>
+                        option.getAttribute('data-value')
+                    ).filter(value => value !== null && value !== '');
+
+                    return selectedValues;
+                })(), // <-- Note the () at the end to execute immediately
+
+                duplicate: (() => {
+                    const element = document.getElementById('createEventDuplicate');
+                    if (!element) return '';
+
+                    const selectedElement = element.querySelector('.selected');
+                    return selectedElement ? selectedElement.getAttribute('data-value') || '' : '';
+                })(), // <-- Execute immediately
                 duplicate: document.getElementById('createEventDuplicate').value,
                 startTime: document.getElementById('createEventStartTime').value || null,
                 endTime: document.getElementById('createEventEndTime').value || null,
@@ -1383,7 +1404,28 @@ document.addEventListener('DOMContentLoaded', function() {
                 type: document.getElementById('viewTypeSessionSelect').value,
                 room: document.getElementById('viewEventRoom').value,
                 subject: document.getElementById('viewEventSubject').value,
-                completionTags: Array.from(document.getElementById('viewEventCompletionTagCalander').selectedOptions).map(option => option.value),
+                completionTags: (() => {
+                    const element = document.getElementById('createEventCompletionTag');
+                    if (!element) return [];
+
+                    // Get all selected options (with 'selected-option' class)
+                    const selectedOptions = element.querySelectorAll('.options .selected-option');
+
+                    // Extract values from data-value attributes
+                    const selectedValues = Array.from(selectedOptions).map(option =>
+                        option.getAttribute('data-value')
+                    ).filter(value => value !== null && value !== '');
+
+                    return selectedValues;
+                })(), // <-- Note the () at the end to execute immediately
+
+                duplicate: (() => {
+                    const element = document.getElementById('createEventDuplicate');
+                    if (!element) return '';
+
+                    const selectedElement = element.querySelector('.selected');
+                    return selectedElement ? selectedElement.getAttribute('data-value') || '' : '';
+                })(), // <-- Execute immediately
                 duplicate: document.getElementById('viewEventDuplicate').value,
                 startTime: document.getElementById('viewEventStartTime').value || null,
                 endTime: document.getElementById('viewEventEndTime').value || null,
@@ -1424,6 +1466,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+
 
 
 /* =========================================*/
@@ -1479,11 +1523,22 @@ function handleDuplicateChange(value) {
     const endTimeFields = document.getElementById('createEndTimeFields');
     const eventEndFields = document.getElementById('createEventEndFields');
 
-    if (value !== 'none' && value !== '') {
+    if (!startTimeFields || !endTimeFields || !eventEndFields) {
+        return;
+    }
+
+    if (value === 'none') {
+        // "Not Duplicate" - show time fields but hide end date
+        startTimeFields.style.display = 'block';
+        endTimeFields.style.display = 'block';
+        eventEndFields.style.display = 'none';
+    } else if (value && value !== '') {
+        // Any duplicate option - show all fields
         startTimeFields.style.display = 'block';
         endTimeFields.style.display = 'block';
         eventEndFields.style.display = 'block';
     } else {
+        // No selection - hide all
         startTimeFields.style.display = 'none';
         endTimeFields.style.display = 'none';
         eventEndFields.style.display = 'none';
@@ -1519,8 +1574,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 type: getCustomSelectValue('createTypeSessionSelect'),
                 room: getCustomSelectValue('createEventRoom'),
                 subject: getCustomSelectValue('createEventSubject'),
-                completionTags: Array.from(document.getElementById('createEventCompletionTag').selectedOptions).map(option => option.value),
-                duplicate: getCustomSelectValue('createEventDuplicate'),
+                completionTags: (() => {
+                    const element = document.getElementById('createEventCompletionTag');
+                    if (!element) return [];
+
+                    // Get all selected options (with 'selected-option' class)
+                    const selectedOptions = element.querySelectorAll('.options .selected-option');
+
+                    // Extract values from data-value attributes
+                    const selectedValues = Array.from(selectedOptions).map(option =>
+                        option.getAttribute('data-value')
+                    ).filter(value => value !== null && value !== '');
+
+                    return selectedValues;
+                })(), // <-- Note the () at the end to execute immediately
+
+                duplicate: (() => {
+                    const element = document.getElementById('createEventDuplicate');
+                    if (!element) return '';
+
+                    const selectedElement = element.querySelector('.selected');
+                    return selectedElement ? selectedElement.getAttribute('data-value') || '' : '';
+                })(), // <-- Execute immediately
+
                 startTime: document.getElementById('createEventStartTime').value || null,
                 endTime: document.getElementById('createEventEndTime').value || null,
                 endDate: document.getElementById('createEventEndDate').value || null,
@@ -2506,4 +2582,8 @@ $(document).ready(function() {
         $('#group-local-session-form')[0].reset();
     });
 });
+
+
+
+
 

@@ -147,26 +147,23 @@
                     </div>
 
                     <!-- Type Select -->
-                    <div class="mb-3">
-                        <label class="form-label">Type</label>
-                        <div class="custom-select" data-name="createTypeSessionSelect">
-                            <div class="selected" data-value="">Select Type</div>
-                            <div class="options">
-                                <div data-value="">Select Type</div>
-                                <div data-value="P">Presence (P)</div>
-                                <div data-value="O">Online (O)</div>
-                            </div>
+                    <div class="custom-select" id="createTypeSessionSelect" data-name="createTypeSessionSelect">
+                        <div class="selected" data-value="">Select Type</div>
+                        <div class="options">
+                            <div data-value="">Select Type</div>
+                            <div data-value="P">Presence (P)</div>
+                            <div data-value="O">Online (O)</div>
                         </div>
                     </div>
 
                     <!-- Room Select -->
                     <div class="mb-3">
                         <label class="form-label">Room</label>
-                        <div class="custom-select" data-name="createEventRoom">
+                        <div class="custom-select" id="createEventRoom" data-name="createEventRoom">
                             <div class="selected" data-value="">Select a Room</div>
                             <div class="options">
                                 <div data-value="">Select a Room</div>
-
+                                <!-- Add your room options here -->
                             </div>
                         </div>
                     </div>
@@ -174,11 +171,11 @@
                     <!-- Subject Select -->
                     <div class="mb-3">
                         <label class="form-label">Teacher And Subject</label>
-                        <div class="custom-select" data-name="createEventSubject">
+                        <div class="custom-select" id="createEventSubject" data-name="createEventSubject">
                             <div class="selected" data-value="">Select a Subject and Teacher</div>
                             <div class="options">
                                 <div data-value="">Select a Subject and Teacher</div>
-
+                                <!-- Your subject options will go here -->
                             </div>
                         </div>
                     </div>
@@ -186,7 +183,7 @@
                     <!-- Completion Tag (keep as multiple select) -->
                     <div class="mb-3">
                         <label class="form-label">Completion Tag</label>
-                        <div class="custom-select" data-name="createEventCompletionTag">
+                        <div class="custom-select" id="createEventCompletionTag" data-name="createEventCompletionTag">
                             <div class="selected" data-value="">Select Completion Tag(s)</div>
                             <div class="options">
                                 <div data-value="1">Bronze</div>
@@ -239,12 +236,16 @@
                             const optionsContainer = select.querySelector('.options');
                             let selectedValues = [];
 
+                            // Store initial values
+                            selected.dataset.selectedValues = JSON.stringify(selectedValues);
+
                             selected.addEventListener('click', () => {
                                 select.classList.toggle('open');
                             });
 
                             optionsContainer.querySelectorAll('div').forEach(option => {
                                 option.addEventListener('click', e => {
+                                    e.stopPropagation();
                                     const value = option.dataset.value;
 
                                     if (selectedValues.includes(value)) {
@@ -255,9 +256,14 @@
                                         option.classList.add('selected-option');
                                     }
 
+                                    // Update display
                                     selected.textContent = selectedValues.length
                                         ? selectedValues.map(v => optionsContainer.querySelector(`[data-value="${v}"]`).textContent).join(', ')
-                                        : 'Select Completion Tag(s)';
+                                        : selected.dataset.placeholder || 'Select...';
+
+                                    // Store values in data attribute so they're accessible
+                                    selected.dataset.selectedValues = JSON.stringify(selectedValues);
+                                    select.dataset.selectedValues = JSON.stringify(selectedValues);
                                 });
                             });
 
@@ -273,7 +279,7 @@
                     <!-- Duplicate Select -->
                     <div class="mb-3">
                         <label class="form-label">Duplicate</label>
-                        <div class="custom-select" data-name="createEventDuplicate">
+                        <div class="custom-select" id="createEventDuplicate" data-name="createEventDuplicate">
                             <div class="selected" data-value="">Select an Option</div>
                             <div class="options">
                                 <div data-value="">Select an Option</div>
